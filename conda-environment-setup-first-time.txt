@@ -1,0 +1,54 @@
+# First let's ensure that we're in the correct folder of this repo
+cd "/path/to/your/repository"  # Replace with wherever this repo is (the folder containing this readme file)
+
+# We want to create a conda environment IN the very folder of the repo* with a relevant name, say intcombopt567:
+conda env create --file env.yml --prefix ./intcombopt567
+ # This will create the environment based on all the details in the env.yml file, inside a folder named intcombopt567 in the current directory (note that gitignore is already set to ignore this folder) 
+
+# Let us activate our newly installed conda environment, so that we can later install the relevant packages
+conda activate ./intcombopt567
+
+# Let us confirm if our newly created environment has indeed been activated:
+conda info # If it points to the intcombopt567 folder that just got created as a result of the conda environment creation, then all is well.
+    # If you're getting some message like do conda init then conda activate then do the same, i.e.:
+    conda init
+    # kill the terminal and restart it and ensure you're in the correct folder again
+    conda activate ./intcombopt567
+        # If this still shows up the same error, one possible remedy is:
+        conda init bash # If you see a 'modified' bash, then possibly the problem is fixed.
+
+# Now try running main.py to see if the environment is set up correctly, you could either just 'Run' the whole file, or try doing a sequence of Shift+Enter commands for each cell.
+
+
+# FAQs:
+
+## Do I need to have Anaconda installed?
+
+No, you don't need to have Anaconda installed. You can just install Miniconda, which is a minimal installer for conda. It is a much smaller installer compared to Anaconda, and it installs only conda, Python, and other essential packages. You can then install the required packages using conda.
+
+## How do I install Miniconda?
+
+You can download the Miniconda installer from the following link (for Windows): https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe
+  
+  Specific Instructions:
+    1. Download the Miniconda installer from the link provided above.
+    2. Run the installer.
+    3. Install for 'Just Me'. (and not 'All Users')
+    4. Select 'Add Miniconda to my PATH environment variable'. (Ignore the warning that it's not recommended)
+    5. All other options can be left as default.
+    6. Click 'Install'.
+    7. Once the installation is complete, you can close the installer.
+    8. To check if Miniconda has been installed correctly, open a command prompt and run the command `conda --version`. If Miniconda has been installed correctly, you should see the version of conda that has been installed.
+    Sometimes you may need to restart your computer for the changes to take effect.
+
+## Do I need to have Python installed?
+
+No, you don't need to have Python installed. Miniconda will install Python for you.
+
+## I already have a different version of Python installed. Will installing Miniconda cause any issues?
+
+No, installing Miniconda will not cause any issues with your existing Python installation. Miniconda will install Python in a separate environment, and you can choose to use this environment when working on your project.
+
+## Ipopt is not available in SolverFactory. What should I do?
+
+The conda installation may not necessarily generate ipopt.exe, which may be important for the SolverFactory to work. In such cases, you may need to install Ipopt separately from the website: https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.5.4-win64-icl9.0.zip. Once you have downloaded and installed Ipopt (anywhere on your machine, including, if wanted, inside the intcombopt567 folder inside this repo), you can add the location to the PATH.
