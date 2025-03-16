@@ -1,0 +1,25 @@
+# Data file for the alternative model for the FarmerJones LP
+# introduced in the AMPL Handout 1, using n as the # crops in place of
+# a set of Crops.
+
+param n := 2;
+
+param Yield :=
+1 10
+2 25;
+
+param Labor :=
+1  4
+2 10;
+
+param Price :=
+1 3 
+2 4;
+
+param Min_Crop :=
+1 30
+2  0;
+
+param Max_Acres := 7;
+
+param Max_Hours := 40;
