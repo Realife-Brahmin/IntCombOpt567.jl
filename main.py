@@ -13,7 +13,7 @@ var x {1..4} binary;
 # var x {1..4} integer >= 0;
 maximize z: 17*x[1] + 10*x[2] + 25*x[3] + 17*x[4];
 
-subject to constraint1:
+subject to S0:
     5*x[1] + 3*x[2] + 8*x[3] + 7*x[4] <= 12;
 """
 )
