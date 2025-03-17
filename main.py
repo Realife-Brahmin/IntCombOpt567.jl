@@ -1,6 +1,6 @@
 #%%
 # Ensure amplpy is installed (pip install amplpy)
-from amplpy import AMPL, Environment
+from amplpy import AMPL
 
 # Initialize AMPL environment
 ampl = AMPL()
