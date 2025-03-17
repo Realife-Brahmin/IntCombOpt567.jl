@@ -15,7 +15,7 @@ problem = "S4"
 problem = "S5"
 problem = "S6"
 problem = "S7"
-problem = "S8"
+# problem = "S8"
 
 # Load AMPL model from external file
 model_file_path = os.path.join("rawData", "branchAndBoundExample", "model-"+problem+".mod.txt")
@@ -34,7 +34,7 @@ z_val = ampl.get_objective("z").value()
 
 # Display results
 print("Optimal solution:")
-for i in range(1, 5):
+for i in x_vals.keys():
     print(f"x[{i}] = {x_vals[str(i)]}")
 
 print(f"Optimal objective (z): {z_val}")
