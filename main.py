@@ -6,20 +6,12 @@ from amplpy import AMPL
 # Initialize AMPL environment
 ampl = AMPL()
 
-# # Define the AMPL model
-# ampl.eval(
-#     """
-# var x {1..4} binary;
-# # var x {1..4} >= 0;
-# # var x {1..4} integer >= 0;
-# maximize z: 17*x[1] + 10*x[2] + 25*x[3] + 17*x[4];
-
-# subject to S0:
-#     5*x[1] + 3*x[2] + 8*x[3] + 7*x[4] <= 12;
-# """
-# )
-
 problem = "original"
+problem = "S0"
+problem = "S1"
+problem = "S2"
+problem = "S3"
+problem = "S4"
 
 # Load AMPL model from external file
 model_file_path = os.path.join("rawData", "branchAndBoundExample", "model-"+problem+".mod.txt")
@@ -28,7 +20,6 @@ ampl.read(model_file_path)
 # Solve the optimization problem
 ampl.solve(solver="gurobi")
 
-# %%
 # Get results
 x_vals_list = ampl.get_variable("x").get_values().to_list()
 x_vals = {str(i): val for i, val in x_vals_list}
