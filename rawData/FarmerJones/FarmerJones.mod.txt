@@ -1,0 +1,19 @@
+# Alternative model file for the FarmerJones LP introduced in the AMPL
+# Handout 1, using n as the # crops in place of a set of Crops.
+
+param n; # # of crops
+
+param Yield {1..n}; # yield per acre of crop i
+param Labor {1..n};
+param Price {1..n};
+param Min_Crop {1..n};
+param Max_Acres;
+param Max_Hours;
+
+var x {1..n} >= 0; # x[i] = # acres of crop i
+
+maximize Total_Revenue: sum {j in 1..n} Price[j]*Yield[j]*x[j];
+
+s.t.  LandCon: sum {j in 1..n} x[j] <= Max_Acres;
+s.t.  LaborHrsCon: sum {j in 1..n} Labor[j]*x[j] <= Max_Hours;
+s.t.  MinCropCon {j in 1..n}: Yield[j]*x[j] >= Min_Crop[j];

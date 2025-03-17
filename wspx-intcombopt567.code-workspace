@@ -4,5 +4,18 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"window.autoDetectColorScheme": false, // required!
+		"workbench.preferredLightColorTheme": "In Bed by 7pm",
+		"workbench.preferredDarkColorTheme": "Dracula At Night",
+		"sundial.sunrise": "06:00",
+		"sundial.sunset": "19:00",
+	},
+	"extensions": {
+		"recommendations": [
+			"bceskavich.theme-dracula-at-night",
+			"sdras.inbedby7pm",
+			"muuvmuuv.vscode-sundial"
+		]
+	}
 }
