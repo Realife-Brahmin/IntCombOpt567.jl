@@ -12,6 +12,10 @@ problem = "S1"
 problem = "S2"
 problem = "S3"
 problem = "S4"
+problem = "S5"
+problem = "S6"
+problem = "S7"
+problem = "S8"
 
 # Load AMPL model from external file
 model_file_path = os.path.join("rawData", "branchAndBoundExample", "model-"+problem+".mod.txt")
@@ -19,6 +23,9 @@ ampl.read(model_file_path)
 
 # Solve the optimization problem
 ampl.solve(solver="gurobi")
+
+# Check if the problem was solved
+assert ampl.solve_result == "solved"
 
 # Get results
 x_vals_list = ampl.get_variable("x").get_values().to_list()
