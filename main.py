@@ -19,8 +19,10 @@ ampl = AMPL()
 # """
 # )
 
+problem = "original"
+
 # Load AMPL model from external file
-model_file_path = os.path.join("rawData", "branchAndBoundExample", "model.mod.txt")
+model_file_path = os.path.join("rawData", "branchAndBoundExample", "model-"+problem+".mod.txt")
 ampl.read(model_file_path)
 
 # Solve the optimization problem
