@@ -1,9 +1,6 @@
 # %%
 import os
-# Ensure amplpy is installed (pip install amplpy)
 from amplpy import AMPL
-
-# Initialize AMPL environment
 ampl = AMPL()
 
 problem = "original"
