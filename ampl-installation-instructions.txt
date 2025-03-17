@@ -1,13 +1,13 @@
 # Install Python API for AMPL:
-$ python -m pip install amplpy --upgrade
+python -m pip install amplpy --upgrade
 
 # Install solver modules:
-$ python -m amplpy.modules install highs gurobi
+python -m amplpy.modules install highs gurobi
 
 # Activate your license (e.g., free ampl.com/ce or ampl.com/courses licenses):
-$ python -m amplpy.modules activate xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx # replace with your license key obtained from https://portal.ampl.com/download/ampl/bundle/ after logging in with your AMPL account
+python -m amplpy.modules activate xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx # replace with your license key obtained from https://portal.ampl.com/download/ampl/bundle/ after logging in with your AMPL account
 
 # Import and instantiate AMPL object in Python:
-$ python
+python
 >>> from amplpy import AMPL
 >>> ampl = AMPL() # instantiate AMPL object
