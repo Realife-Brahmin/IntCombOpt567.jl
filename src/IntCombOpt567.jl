@@ -1,5 +1,6 @@
 module IntCombOpt567
 
+export helperFunctions
 export setCoveringHeuristics
 
 using AmplNLWriter
@@ -9,10 +10,17 @@ using JuMP
 using Parameters: @unpack, @pack!
 using SparseArrays
 
+include("./helperFunctions.jl")
 include("./setCoveringHeuristics.jl")
 
+using .helperFunctions
 using .setCoveringHeuristics
 
-export txt2mats
+export
+    chooseNextPole,
+    getNextPole,
+    myprintln,
+    solveSetCoveringProblem,
+    txt2mats
 
 end
