@@ -11,5 +11,12 @@ graphState = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
 
 graphState = sCH.solveSetCoveringProblem(graphState)
 
-@unpack poles_used = graphState;
-myprintln(true, "value=$(poles_used)")
+@unpack poles_used, Acov = graphState;
+myprintln(true, "Before value=$(poles_used)")
+display(Acov)
+graphState = sCH.removePole(graphState, 2, verbose=true)
+
+
+@unpack poles_used, Acov = graphState;
+myprintln(true, "After value=$(poles_used)")
+display(Acov)
