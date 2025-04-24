@@ -13,6 +13,7 @@ include("./helperFunctions.jl")
 import .helperFunctions as HF
 
 function initializeGraph(filepath::String;
+    maxiter::Int = 1000)
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]
@@ -65,8 +66,10 @@ function initializeGraph(filepath::String;
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
         :degMetUnusedPoles => degMetUnusedPoles,
+        :k => 0,
         :M => M,
         :m => m,
+        :maxiter => maxiter,
         :Mprime => Mprime,
         :P => P,
         :p => p,
@@ -128,15 +131,15 @@ function solveSetCoveringProblem(graphState;
     verbose::Bool = false)
     @unpack m, Mprime = graphState # Mprime initially is empty
     
-    k = 0
     shouldStop = false
     while !shouldStop # While there are still uncovered meters
-        k += 1
+        @unpack k = graphState # Starts at 0
+        k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
         graphState = selectPole(graphState, j)  # Select the pole and update the graph state
-        @unpack Mprime = graphState
 
+        @pack! graphState = k # k-th iteration completed, so saving it
         shouldStop = checkForStoppingCriteria(graphState)
     end
 
@@ -145,20 +148,27 @@ end
 
 function checkForStoppingCriteria(graphState;
     verbose::Bool = false)
-    @unpack m, Mprime = graphState
-    shouldStop = false
-    allMetersCovered = false  
-    if  length(Mprime) == m  # All meters are covered
-        HF.myprintln(true, "All meters are covered.")
-        allMetersCovered = true
+    @unpack m, Mprime, k, maxiter = graphState
+
+    if k >= maxiter
+        HF.myprintln(true, "Maximum iterations reached!")
+        return true
     end
 
-    if allMetersCovered
-        HF.myprintln(true, "Stopping criteria met: All meters are covered.")
-        shouldStop = true
+    if length(Mprime) == m
+        HF.myprintln(true, "Stopping criteria (Primary) met: All meters are covered")
+    else
+        return false
     end
 
-    return shouldStop
+    @unpack cleanupDoneLastIter, cleanupUsefulLastIter = graphState
+
+    if cleanupDoneLastIter && !cleanupUsefulLastIter
+        HF.myprintln(true, "Stopping criteria (Secondary) met: Cleanup did not improve value")
+        return true
+    end
+    
+    return false
 
 end
 
