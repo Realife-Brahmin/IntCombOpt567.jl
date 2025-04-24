@@ -1,10 +1,10 @@
 module setCoveringHeuristics
 
-export txt2mats
+export txt2graph
 
 using SparseArrays
 
-function txt2mats(filepath::String)
+function txt2graph(filepath::String)
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]

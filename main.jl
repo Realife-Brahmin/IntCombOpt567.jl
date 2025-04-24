@@ -6,4 +6,4 @@ testCase = "p4m6"
 # testCase = "phase1"
 # testCase = "cap360"
 
-matDict = sCH.txt2mats("rawData/project02/" * testCase * ".txt")
+graph = sCH.txt2graph("rawData/project02/" * testCase * ".txt")
