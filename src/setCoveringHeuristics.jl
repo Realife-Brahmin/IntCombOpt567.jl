@@ -86,7 +86,7 @@ function chooseNextPole(graphState)
 end
 
 function selectPole(graphState, j;
-    verbose = true)
+    verbose = false)
     @unpack A, A_T, degPoleUnused, degMet, Mprime, Pprime, Acov = graphState
 
     # Update the set of covered meters (Mprime) and selected poles (Pprime)
@@ -121,11 +121,12 @@ function selectPole(graphState, j;
     return graphState
 end
 
-function solveSetCoveringProblem(graphState)
+function solveSetCoveringProblem(graphState;
+    verbose::Bool = false)
     @unpack m, Mprime = graphState # Mprime initially is empty
     
     while length(Mprime) != m # While there are still unused poles
-        HF.myprintln(true, "Currently covered meters: $(Mprime)")
+        HF.myprintln(verbose, "Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
         graphState = selectPole(graphState, j)  # Select the pole and update the graph state
         @unpack Mprime = graphState
