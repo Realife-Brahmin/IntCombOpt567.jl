@@ -11,6 +11,10 @@ function txt2mats(filepath::String)
     rows_AT = Int[]
     cols_AT = Int[]
 
+    # Initialize dictionaries to count degrees
+    degPole = Dict{Int,Int}()  # Degree of each pole (column j)
+    degMet = Dict{Int,Int}()   # Degree of each meter (row i)
+
     # Read the file and parse the rows
     for line in readlines(filepath)
         i, j = parse.(Int, split(line))
@@ -18,6 +22,10 @@ function txt2mats(filepath::String)
         push!(cols_A, j)
         push!(rows_AT, j)  # Reverse for A_T
         push!(cols_AT, i)
+
+        # Update degree counts
+        degMet[i] = get(degMet, i, 0) + 1
+        degPole[j] = get(degPole, j, 0) + 1
     end
 
     # Determine the dimensions dynamically
@@ -30,7 +38,9 @@ function txt2mats(filepath::String)
 
     matrixDict = Dict(
         :A => A,
-        :A_T => A_T
+        :A_T => A_T,
+        :degPole => degPole,
+        :degMet => degMet
     )
 
     return matrixDict
