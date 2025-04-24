@@ -7,11 +7,11 @@ Revise.track(IntCombOpt567.helperFunctions)
 # testCase = "phase1"
 testCase = "cap360"
 
-sim_time = @belapsed begin
+# sim_time = @belapsed begin
     g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
-    sCH.solveSetCoveringProblem!(g)
+    @profile sCH.solveSetCoveringProblem!(g)
     global graph = g
-end
+# end
 
 @unpack poles_used, meters_covered, Acov, m = graph
 @test meters_covered == m
