@@ -156,20 +156,11 @@ function checkForStoppingCriteria(graphState;
     end
 
     if length(Mprime) == m
-        HF.myprintln(true, "Stopping criteria (Primary) met: All meters are covered")
-    else
-        return false
-    end
-
-    @unpack cleanupDoneLastIter, cleanupUsefulLastIter = graphState
-
-    if cleanupDoneLastIter && !cleanupUsefulLastIter
-        HF.myprintln(true, "Stopping criteria (Secondary) met: Cleanup did not improve value")
+        HF.myprintln(true, "Stopping criterion met: All meters are covered")
         return true
     end
-    
-    return false
 
+    return false
 end
 
 end # module setCoveringHeuristics
