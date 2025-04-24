@@ -4,11 +4,15 @@ export helperFunctions
 export setCoveringHeuristics
 
 using AmplNLWriter
+using BenchmarkTools
 using Gurobi
 using HiGHS
 using JuMP
 using Parameters: @unpack, @pack!
+using Profile
+using ProfileView
 using SparseArrays
+using Test 
 
 include("./helperFunctions.jl")
 include("./setCoveringHeuristics.jl")

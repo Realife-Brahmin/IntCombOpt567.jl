@@ -1,10 +1,14 @@
 module setCoveringHeuristics
 
 export
+    addPole!,
+    checkForRedundantPole,
+    checkForStoppingCriteria,
+    cleanupGraph!,
     chooseNextPole,
-    selectPole,
-    solveSetCoveringProblem,
-    txt2graph
+    initializeGraph,
+    solveSetCoveringProblem!,
+    removePole!
 
 using Parameters
 using SparseArrays
@@ -12,7 +16,9 @@ using SparseArrays
 include("./helperFunctions.jl")
 import .helperFunctions as HF
 
-function txt2graph(filepath::String)
+function initializeGraph(filepath::String;
+    maxiter::Int = 100000,
+    cleanupRepeats::Int = 10)
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]
@@ -21,7 +27,8 @@ function txt2graph(filepath::String)
 
     # Initialize dictionaries to count degrees
     degPoleUnused = Dict{Int, Int}()  # Degree of each pole (column j)
-    degMet = Dict{Int, Int}()   # Degree of each meter (row i)
+    degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
+    degMetUsedPoles = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
 
     # Read the file and parse the rows
     for line in readlines(filepath)
@@ -32,7 +39,8 @@ function txt2graph(filepath::String)
         push!(cols_AT, i)
 
         # Update degree counts
-        degMet[i] = get(degMet, i, 0) + 1
+        degMetUnusedPoles[i] = get(degMetUnusedPoles, i, 0) + 1
+        degMetUsedPoles[i] = 0
         degPoleUnused[j] = get(degPoleUnused, j, 0) + 1
     end
 
@@ -45,6 +53,11 @@ function txt2graph(filepath::String)
     A0 = deepcopy(A)
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
     A_T0 = deepcopy(A_T)
+    # Create adjacency list A_T0_adj
+    A_T0_adj = Dict{Int,Vector{Int}}()
+    for j in 1:max_j
+        A_T0_adj[j] = findall(A_T0[j, :] .== 1)
+    end
 
     # Initialize additional data structures
     P = sort(collect(1:max_j))  # 'Set' of all poles
@@ -60,13 +73,18 @@ function txt2graph(filepath::String)
         :A0 => A0,
         :A_T => A_T,
         :A_T0 => A_T0,
+        :A_T0_adj => A_T0_adj,
         :Acov => Acov,
         :cleanupDoneLastIter => false,
+        :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
-        :degMet => degMet,
+        :degMetUsedPoles => degMetUsedPoles,
+        :degMetUnusedPoles => degMetUnusedPoles,
+        :k => 0,
         :M => M,
         :m => m,
+        :maxiter => maxiter,
         :Mprime => Mprime,
         :P => P,
         :p => p,
@@ -87,21 +105,20 @@ function chooseNextPole(graphState)
     return j_candidate
 end
 
-function selectPole(graphState, j;
+function addPole!(graphState, j;
     verbose = false)
-    @unpack A, A_T, degPoleUnused, degMet, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
-    # Update the set of covered meters (Mprime) and selected poles (Pprime)
-
-    HF.myprintln(verbose, "Pole $j selected")
-    meters_covered_by_j = findall(A[:, j] .== 1)  # Find all meters covered by pole j
+    HF.myprintln(verbose, "Pole $j to be added")
+    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
     Pprime = union(Pprime, j)  # Add pole j to Pprime
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
-        degMet[i] -= 1
+        degMetUnusedPoles[i] -= 1
+        degMetUsedPoles[i] += 1
     end
 
     # Remove pole j from degPoleUnused
@@ -109,32 +126,90 @@ function selectPole(graphState, j;
 
     # Update the sparse matrix Acov to reflect the meters covered by pole j
     for i in meters_covered_by_j
-        Acov[i, j] = 1  # Set Acov[i, j] = 1
+        Acov[i, j] = 1 
     end
 
     # Remove pole j from A (set A[i, j] = 0 for all i)
     for i in meters_covered_by_j
         A[i, j] = 0
     end
+    dropzeros!(A)
 
-    poles_used = length(Pprime)  # Update the number of poles used
+    poles_used = length(Pprime)
+    meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMet
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
-function solveSetCoveringProblem(graphState;
+function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack m, Mprime = graphState # Mprime initially is empty
-    
-    k = 0
+    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+
+    if j ∉ Pprime
+        error("Attempting to remove a pole that is not in P′.")
+        return
+    end
+
+    Pprime = setdiff(Pprime, j)  # Remove pole j from Pprime
+
+    HF.myprintln(verbose, "Pole $j to be removed")
+    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+    HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
+
+    # Update degrees for meters covered by pole j
+    for i in meters_covered_by_j
+        degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
+        degMetUsedPoles[i] -= 1
+        if degMetUsedPoles[i] == 0
+            Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole
+        end
+    end
+
+    # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
+    for i in meters_covered_by_j
+        Acov[i, j] = 0 
+    end
+    dropzeros!(Acov)
+    # Add back pole j to A (set A[i, j] = 1 for all i)
+    for i in meters_covered_by_j
+        A[i, j] = 1
+    end
+
+    poles_used = length(Pprime)
+    meters_covered = length(Mprime)
+    # Update the graph state
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    return graphState
+
+end
+
+function solveSetCoveringProblem!(graphState;
+    verbose::Bool = false)
+    @unpack cleanupRepeats, m = graphState
     shouldStop = false
     while !shouldStop # While there are still uncovered meters
-        k += 1
+        @unpack k, Mprime = graphState # Starts at 0
+        k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
-        graphState = selectPole(graphState, j)  # Select the pole and update the graph state
-        @unpack Mprime = graphState
+        addPole!(graphState, j)  # Select the pole and update the graph state
+
+        @unpack meters_covered = graphState
+        @pack! graphState = k # k-th iteration completed, so saving it
+
+        cleanupAttempt = false
+        if meters_covered == m
+            HF.myprintln(verbose, "Iteration $(k): Attempting cleanup since all meters are covered")
+            cleanupAttempt = true
+        elseif k % cleanupRepeats == 0
+            HF.myprintln(verbose, "Iteration $(k): Attempting periodic cleanup procedure")
+            cleanupAttempt = true
+        end
+            
+        if cleanupAttempt
+            cleanupGraph!(graphState; verbose=verbose)
+        end
 
         shouldStop = checkForStoppingCriteria(graphState)
     end
@@ -144,21 +219,57 @@ end
 
 function checkForStoppingCriteria(graphState;
     verbose::Bool = false)
-    @unpack m, Mprime = graphState
-    shouldStop = false
-    allMetersCovered = false  
-    if  length(Mprime) == m  # All meters are covered
-        HF.myprintln(true, "All meters are covered.")
-        allMetersCovered = true
+    @unpack m, Mprime, k, maxiter = graphState
+
+    if k >= maxiter
+        HF.myprintln(true, "Maximum iterations reached!")
+        return true
     end
 
-    if allMetersCovered
-        HF.myprintln(true, "Stopping criteria met: All meters are covered.")
-        shouldStop = true
+    if length(Mprime) == m
+        HF.myprintln(true, "Stopping criterion met: All meters are covered")
+        return true
     end
 
-    return shouldStop
+    return false
+end
 
+function cleanupGraph!(graphState;
+    verbose::Bool = false)
+
+    @unpack poles_used, Pprime = graphState
+    cleanupUsefulLastIter = false
+
+    PprimeSorted = sort(collect(Pprime))  # Sort the poles in Pprime
+
+    for j ∈ PprimeSorted
+        redundant = checkForRedundantPole(graphState, j; verbose=verbose)
+        if redundant
+            HF.myprintln(verbose, "Pole $j is redundant and will be removed")
+            removePole!(graphState, j; verbose=verbose)
+            cleanupUsefulLastIter = true
+        end
+    end
+
+    @pack! graphState = cleanupUsefulLastIter # Update the graph state with the cleanup result
+    return graphState
+end
+
+function checkForRedundantPole(graphState, j;
+    verbose::Bool = false)
+
+    HF.myprintln(verbose, "Checking if pole $j is redundant")
+    @unpack degMetUsedPoles, A_T0_adj = graphState
+    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+    
+    for i in meters_covered_by_j
+        if degMetUsedPoles[i] == 1  # If meter i is only covered by pole j
+            HF.myprintln(verbose, "Pole $j is NOT redundant as it covers meter $i exclusively")
+            return false
+        end
+    end
+
+    return true
 end
 
 end # module setCoveringHeuristics
