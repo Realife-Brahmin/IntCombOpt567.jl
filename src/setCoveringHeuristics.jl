@@ -45,7 +45,7 @@ function txt2graph(filepath::String)
     Mprime = Set{Int}()  # Set of covered meters (initially empty)
     Acov = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
 
-    matrixDict = Dict(
+    graphState = Dict(
         :A => A,
         :A0 => A0,
         :A_T => A_T,
@@ -53,13 +53,15 @@ function txt2graph(filepath::String)
         :Acov => Acov,
         :degPole => degPole,
         :degMet => degMet,
-        :P => P,
         :M => M,
-        :Pprime => Pprime,
         :Mprime => Mprime,
+        :P => P,
+        :Pprime => Pprime,
+        :poles_used => 0,
+        :meters_covered => 0,
     )
 
-    return matrixDict
+    return graphState
 end
 
 end # module setCoveringHeuristics
