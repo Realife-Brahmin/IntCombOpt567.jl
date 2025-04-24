@@ -1,5 +1,18 @@
 module IntCombOpt567
 
-# Write your package code here.
+export setCoveringHeuristics
+
+using AmplNLWriter
+using Gurobi
+using HiGHS
+using JuMP
+using Parameters: @unpack, @pack!
+using SparseArrays
+
+include("./setCoveringHeuristics.jl")
+
+using .setCoveringHeuristics
+
+export txt2mats
 
 end
