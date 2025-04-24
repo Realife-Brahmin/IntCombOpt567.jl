@@ -121,6 +121,7 @@ function addPole(graphState, j;
     for i in meters_covered_by_j
         A[i, j] = 0
     end
+    dropzeros!(A)
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
@@ -155,7 +156,7 @@ function removePole(graphState, j;
     for i in meters_covered_by_j
         Acov[i, j] = 0 
     end
-
+    dropzeros!(Acov)
     # Add back pole j to A (set A[i, j] = 1 for all i)
     for i in meters_covered_by_j
         A[i, j] = 1
