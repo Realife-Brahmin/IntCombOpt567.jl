@@ -226,7 +226,27 @@ end
 function cleanupGraph!(graphState;
     verbose::Bool = false)
 
+    @unpack poles_used, Pprime = graphState
+    cleanupUsefulLastIter = false
+
+    PprimeSorted = sort(collect(Pprime))  # Sort the poles in Pprime
+
+    for j ∈ PprimeSorted
+        redundant = checkForRedundantPole(graphState, j; verbose=verbose)
+        if redundant
+            HF.myprintln(verbose, "Pole $j is redundant and will be removed")
+            removePole!(graphState, j; verbose=verbose)
+            cleanupUsefulLastIter = true
+        end
+    end
+
     return graphState
+end
+
+function checkForRedundantPole(graphState, j;
+    verbose::Bool = false)
+
+    return false
 end
 
 end # module setCoveringHeuristics
