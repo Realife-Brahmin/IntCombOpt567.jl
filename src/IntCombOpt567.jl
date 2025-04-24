@@ -4,6 +4,7 @@ export helperFunctions
 export setCoveringHeuristics
 
 using AmplNLWriter
+using BenchmarkTools
 using Gurobi
 using HiGHS
 using JuMP

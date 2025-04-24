@@ -1,3 +1,4 @@
+using BenchmarkTools
 using Revise
 using IntCombOpt567
 using Parameters
