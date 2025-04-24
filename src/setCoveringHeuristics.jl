@@ -65,6 +65,7 @@ function initializeGraph(filepath::String;
         :A_T0 => A_T0,
         :Acov => Acov,
         :cleanupDoneLastIter => false,
+        :cleanupRepeats => 10,
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
         :degMetUsedPoles => degMetUsedPoles,
@@ -174,17 +175,31 @@ end
 
 function solveSetCoveringProblem(graphState;
     verbose::Bool = false)
-    @unpack m, Mprime = graphState # Mprime initially is empty
-    
+    @unpack cleanupRepeats, m = graphState
     shouldStop = false
     while !shouldStop # While there are still uncovered meters
-        @unpack k = graphState # Starts at 0
+        @unpack k, Mprime = graphState # Starts at 0
         k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
         addPole!(graphState, j)  # Select the pole and update the graph state
 
+        @unpack meters_covered = graphState
         @pack! graphState = k # k-th iteration completed, so saving it
+
+        cleanupAttempt = false
+        if meters_covered == m
+            HF.myprintln(verbose, "Iteration $(k): Attempting cleanup since all meters are covered")
+            cleanupAttempt = true
+        elseif k % cleanupRepeats == 0
+            HF.myprintln(verbose, "Iteration $(k): Attempting periodic cleanup procedure")
+            cleanupAttempt = true
+        end
+            
+        if cleanupAttempt
+            cleanupGraph!(graphState; verbose=verbose)
+        end
+
         shouldStop = checkForStoppingCriteria(graphState)
     end
 
@@ -206,6 +221,12 @@ function checkForStoppingCriteria(graphState;
     end
 
     return false
+end
+
+function cleanupGraph!(graphState;
+    verbose::Bool = false)
+
+    return graphState
 end
 
 end # module setCoveringHeuristics
