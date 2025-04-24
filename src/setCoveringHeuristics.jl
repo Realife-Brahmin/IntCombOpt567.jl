@@ -12,8 +12,8 @@ function txt2mats(filepath::String)
     cols_AT = Int[]
 
     # Initialize dictionaries to count degrees
-    degPole = Dict{Int,Int}()  # Degree of each pole (column j)
-    degMet = Dict{Int,Int}()   # Degree of each meter (row i)
+    degPole = Dict{Int, Int}()  # Degree of each pole (column j)
+    degMet = Dict{Int, Int}()   # Degree of each meter (row i)
 
     # Read the file and parse the rows
     for line in readlines(filepath)
@@ -34,13 +34,29 @@ function txt2mats(filepath::String)
 
     # Create sparse matrices A and A_T
     A = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
+    A0 = deepcopy(A)
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
+    A_T0 = deepcopy(A_T)
+
+    # Initialize additional data structures
+    P = sort(collect(1:max_j))  # 'Set' of all poles
+    M = sort(collect(1:max_i))  # 'Set' of all meters
+    Pprime = Set{Int}()  # Set of selected poles (initially empty)
+    Mprime = Set{Int}()  # Set of covered meters (initially empty)
+    Acov = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
 
     matrixDict = Dict(
         :A => A,
+        :A0 => A0,
         :A_T => A_T,
+        :A_T0 => A_T0,
+        :Acov => Acov,
         :degPole => degPole,
-        :degMet => degMet
+        :degMet => degMet,
+        :P => P,
+        :M => M,
+        :Pprime => Pprime,
+        :Mprime => Mprime,
     )
 
     return matrixDict
