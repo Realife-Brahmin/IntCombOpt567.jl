@@ -150,6 +150,9 @@ function removePole(graphState, j;
     for i in meters_covered_by_j
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
+        if degMetUsedPoles[i] == 0
+            Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole
+        end
     end
 
     # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
