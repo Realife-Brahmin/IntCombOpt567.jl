@@ -125,11 +125,13 @@ function solveSetCoveringProblem(graphState;
     verbose::Bool = false)
     @unpack m, Mprime = graphState # Mprime initially is empty
     
+    k = 1
     while length(Mprime) != m # While there are still unused poles
-        HF.myprintln(verbose, "Currently covered meters: $(Mprime)")
+        HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
         graphState = selectPole(graphState, j)  # Select the pole and update the graph state
         @unpack Mprime = graphState
+        k += 1
     end
 
     return graphState
