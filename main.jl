@@ -7,16 +7,16 @@ testCase = "p4m6"
 # testCase = "phase1"
 # testCase = "cap360"
 
-graphState = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
+graph = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
 
-graphState = sCH.solveSetCoveringProblem(graphState)
+graph = sCH.solveSetCoveringProblem(graph)
 
-@unpack poles_used, Acov = graphState;
+@unpack poles_used, Acov = graph;
 myprintln(true, "Before value=$(poles_used)")
 display(Acov)
-graphState = sCH.removePole(graphState, 2, verbose=true)
+graph = sCH.removePole(graph, 2, verbose=true)
 
 
-@unpack poles_used, Acov = graphState;
+@unpack poles_used, Acov = graph;
 myprintln(true, "After value=$(poles_used)")
 display(Acov)
