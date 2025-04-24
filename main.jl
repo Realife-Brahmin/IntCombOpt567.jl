@@ -11,12 +11,13 @@ graph = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
 
 graph = sCH.solveSetCoveringProblem(graph)
 
-@unpack poles_used, Acov = graph;
+@unpack poles_used, meters_covered, Acov, m = graph;
+@test meters_covered == m
 myprintln(true, "Before value=$(poles_used)")
 display(Acov)
-graph = sCH.removePole(graph, 2, verbose=true)
 
-
-@unpack poles_used, Acov = graph;
+sCH.removePole!(graph, 2, verbose=true)
+@unpack meters_covered, poles_used, Acov, m = graph;
+@test meters_covered == m 
 myprintln(true, "After value=$(poles_used)")
 display(Acov)

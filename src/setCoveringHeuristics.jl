@@ -130,7 +130,7 @@ function addPole!(graphState, j;
     return graphState
 end
 
-function removePole(graphState, j;
+function removePole!(graphState, j;
     verbose::Bool = false)
     @unpack A, A_T, A_T0, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
