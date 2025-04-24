@@ -2,7 +2,7 @@ module setCoveringHeuristics
 
 export
     chooseNextPole,
-    selectPole,
+    addPole,
     solveSetCoveringProblem,
     initializeGraph
 
@@ -90,7 +90,7 @@ function chooseNextPole(graphState)
     return j_candidate
 end
 
-function selectPole(graphState, j;
+function addPole(graphState, j;
     verbose = false)
     @unpack A, A_T, degPoleUnused, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
@@ -137,7 +137,7 @@ function solveSetCoveringProblem(graphState;
         k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
-        graphState = selectPole(graphState, j)  # Select the pole and update the graph state
+        graphState = addPole(graphState, j)  # Select the pole and update the graph state
 
         @pack! graphState = k # k-th iteration completed, so saving it
         shouldStop = checkForStoppingCriteria(graphState)
