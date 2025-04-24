@@ -93,7 +93,7 @@ function chooseNextPole(graphState)
     return j_candidate
 end
 
-function addPole(graphState, j;
+function addPole!(graphState, j;
     verbose = false)
     @unpack A, A_T, A_T0, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
@@ -144,7 +144,6 @@ function removePole(graphState, j;
     HF.myprintln(verbose, "Pole $j to be removed")
     meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
-    Mprime = setdiff(Mprime, meters_covered_by_j)  # Remove these meters from Mprime
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
@@ -183,7 +182,7 @@ function solveSetCoveringProblem(graphState;
         k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
-        graphState = addPole(graphState, j)  # Select the pole and update the graph state
+        addPole!(graphState, j)  # Select the pole and update the graph state
 
         @pack! graphState = k # k-th iteration completed, so saving it
         shouldStop = checkForStoppingCriteria(graphState)
