@@ -1,8 +1,8 @@
 module setCoveringHeuristics
 
 export
-    chooseNextPole,
     addPole,
+    chooseNextPole,
     solveSetCoveringProblem,
     initializeGraph
 
@@ -22,7 +22,8 @@ function initializeGraph(filepath::String;
 
     # Initialize dictionaries to count degrees
     degPoleUnused = Dict{Int, Int}()  # Degree of each pole (column j)
-    degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i)
+    degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
+    degMetUsedPoles = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
 
     # Read the file and parse the rows
     for line in readlines(filepath)
@@ -34,6 +35,7 @@ function initializeGraph(filepath::String;
 
         # Update degree counts
         degMetUnusedPoles[i] = get(degMetUnusedPoles, i, 0) + 1
+        degMetUsedPoles[i] = 0
         degPoleUnused[j] = get(degPoleUnused, j, 0) + 1
     end
 
@@ -65,6 +67,7 @@ function initializeGraph(filepath::String;
         :cleanupDoneLastIter => false,
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
+        :degMetUsedPoles => degMetUsedPoles,
         :degMetUnusedPoles => degMetUnusedPoles,
         :k => 0,
         :M => M,
