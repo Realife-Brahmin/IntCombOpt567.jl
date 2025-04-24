@@ -7,7 +7,7 @@ testCase = "p4m6"
 # testCase = "phase1"
 # testCase = "cap360"
 
-graphState = sCH.txt2graph("rawData/project02/" * testCase * ".txt")
+graphState = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
 
 graphState = sCH.solveSetCoveringProblem(graphState)
 

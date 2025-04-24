@@ -4,7 +4,7 @@ export
     chooseNextPole,
     selectPole,
     solveSetCoveringProblem,
-    txt2graph
+    initializeGraph
 
 using Parameters
 using SparseArrays
@@ -12,7 +12,7 @@ using SparseArrays
 include("./helperFunctions.jl")
 import .helperFunctions as HF
 
-function txt2graph(filepath::String)
+function initializeGraph(filepath::String;
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]
