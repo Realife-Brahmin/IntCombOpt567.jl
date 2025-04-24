@@ -9,6 +9,7 @@ using HiGHS
 using JuMP
 using Parameters: @unpack, @pack!
 using SparseArrays
+using Test 
 
 include("./helperFunctions.jl")
 include("./setCoveringHeuristics.jl")
