@@ -11,10 +11,15 @@ testCase = "cap360"
     g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
     @profile sCH.solveSetCoveringProblem!(g)
     global graph = g
-# end
+# end myprintln(true, "sim_time=$(sim_time)")
 
 @unpack poles_used, meters_covered, Acov, m = graph
 @test meters_covered == m
-myprintln(true, "value=$(poles_used), time=$(sim_time)")
+myprintln(true, "value=$(poles_used)")
 
 # display(Acov)
+
+# Save the top 20 lines (most sampled = most time spent) to a file
+open("profile_summary.txt", "w") do io
+    Profile.print(io; format=:flat, sortedby=:count)
+end
