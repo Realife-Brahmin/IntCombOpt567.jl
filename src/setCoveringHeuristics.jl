@@ -61,6 +61,8 @@ function txt2graph(filepath::String)
         :A_T => A_T,
         :A_T0 => A_T0,
         :Acov => Acov,
+        :cleanupDoneLastIter => false,
+        :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
         :degMet => degMet,
         :M => M,
@@ -125,16 +127,38 @@ function solveSetCoveringProblem(graphState;
     verbose::Bool = false)
     @unpack m, Mprime = graphState # Mprime initially is empty
     
-    k = 1
-    while length(Mprime) != m # While there are still unused poles
+    k = 0
+    shouldStop = false
+    while !shouldStop # While there are still uncovered meters
+        k += 1
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
         j = chooseNextPole(graphState)  # Choose the next pole
         graphState = selectPole(graphState, j)  # Select the pole and update the graph state
         @unpack Mprime = graphState
-        k += 1
+
+        shouldStop = checkForStoppingCriteria(graphState)
     end
 
     return graphState
+end
+
+function checkForStoppingCriteria(graphState;
+    verbose::Bool = false)
+    @unpack m, Mprime = graphState
+    shouldStop = false
+    allMetersCovered = false  
+    if  length(Mprime) == m  # All meters are covered
+        HF.myprintln(true, "All meters are covered.")
+        allMetersCovered = true
+    end
+
+    if allMetersCovered
+        HF.myprintln(true, "Stopping criteria met: All meters are covered.")
+        shouldStop = true
+    end
+
+    return shouldStop
+
 end
 
 end # module setCoveringHeuristics
