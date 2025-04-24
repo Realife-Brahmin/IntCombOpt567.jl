@@ -95,12 +95,10 @@ end
 
 function addPole(graphState, j;
     verbose = false)
-    @unpack A, A_T, degPoleUnused, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, A_T0, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
-    # Update the set of covered meters (Mprime) and selected poles (Pprime)
-
-    HF.myprintln(verbose, "Pole $j selected")
-    meters_covered_by_j = findall(A[:, j] .== 1)  # Find all meters covered by pole j
+    HF.myprintln(verbose, "Pole $j to be added")
+    meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
     Pprime = union(Pprime, j)  # Add pole j to Pprime
