@@ -1,10 +1,14 @@
 module setCoveringHeuristics
 
 export
-    addPole,
+    addPole!,
+    checkForRedundantPole,
+    checkForStoppingCriteria,
+    cleanupGraph!,
     chooseNextPole,
-    solveSetCoveringProblem,
-    initializeGraph
+    initializeGraph,
+    solveSetCoveringProblem!,
+    removePole!
 
 using Parameters
 using SparseArrays
@@ -13,7 +17,7 @@ include("./helperFunctions.jl")
 import .helperFunctions as HF
 
 function initializeGraph(filepath::String;
-    maxiter::Int = 1000)
+    maxiter::Int = 100000)
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]
@@ -173,7 +177,7 @@ function removePole!(graphState, j;
 
 end
 
-function solveSetCoveringProblem(graphState;
+function solveSetCoveringProblem!(graphState;
     verbose::Bool = false)
     @unpack cleanupRepeats, m = graphState
     shouldStop = false
@@ -240,13 +244,25 @@ function cleanupGraph!(graphState;
         end
     end
 
+    @pack! graphState = cleanupUsefulLastIter # Update the graph state with the cleanup result
     return graphState
 end
 
 function checkForRedundantPole(graphState, j;
     verbose::Bool = false)
 
-    return false
+    HF.myprintln(verbose, "Checking if pole $j is redundant")
+    @unpack degMetUsedPoles, A_T0 = graphState
+    meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
+    
+    for i in meters_covered_by_j
+        if degMetUsedPoles[i] == 1  # If meter i is only covered by pole j
+            HF.myprintln(verbose, "Pole $j is NOT redundant as it covers meter $i exclusively")
+            return false
+        end
+    end
+
+    return true
 end
 
 end # module setCoveringHeuristics
