@@ -108,6 +108,7 @@ function addPole(graphState, j;
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
         degMetUnusedPoles[i] -= 1
+        degMetUsedPoles[i] += 1
     end
 
     # Remove pole j from degPoleUnused
@@ -115,7 +116,7 @@ function addPole(graphState, j;
 
     # Update the sparse matrix Acov to reflect the meters covered by pole j
     for i in meters_covered_by_j
-        Acov[i, j] = 1  # Set Acov[i, j] = 1
+        Acov[i, j] = 1 
     end
 
     # Remove pole j from A (set A[i, j] = 0 for all i)
@@ -126,8 +127,48 @@ function addPole(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUnusedPoles, meters_covered
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
+end
+
+function removePole(graphState, j;
+    verbose::Bool = false)
+    @unpack A, A_T, A_T0, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+
+    if j ∉ Pprime
+        error("Attempting to remove a pole that is not in P′.")
+        return
+    end
+
+    Pprime = setdiff(Pprime, j)  # Remove pole j from Pprime
+
+    HF.myprintln(verbose, "Pole $j to be removed")
+    meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
+    HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
+    Mprime = setdiff(Mprime, meters_covered_by_j)  # Remove these meters from Mprime
+
+    # Update degrees for meters covered by pole j
+    for i in meters_covered_by_j
+        degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
+        degMetUsedPoles[i] -= 1
+    end
+
+    # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
+    for i in meters_covered_by_j
+        Acov[i, j] = 0 
+    end
+
+    # Add back pole j to A (set A[i, j] = 1 for all i)
+    for i in meters_covered_by_j
+        A[i, j] = 1
+    end
+
+    poles_used = length(Pprime)
+    meters_covered = length(Mprime)
+    # Update the graph state
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    return graphState
+
 end
 
 function solveSetCoveringProblem(graphState;
