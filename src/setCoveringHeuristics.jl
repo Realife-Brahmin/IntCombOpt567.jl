@@ -21,7 +21,7 @@ function txt2graph(filepath::String)
 
     # Initialize dictionaries to count degrees
     degPoleUnused = Dict{Int, Int}()  # Degree of each pole (column j)
-    degMet = Dict{Int, Int}()   # Degree of each meter (row i)
+    degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i)
 
     # Read the file and parse the rows
     for line in readlines(filepath)
@@ -32,7 +32,7 @@ function txt2graph(filepath::String)
         push!(cols_AT, i)
 
         # Update degree counts
-        degMet[i] = get(degMet, i, 0) + 1
+        degMetUnusedPoles[i] = get(degMetUnusedPoles, i, 0) + 1
         degPoleUnused[j] = get(degPoleUnused, j, 0) + 1
     end
 
@@ -64,7 +64,7 @@ function txt2graph(filepath::String)
         :cleanupDoneLastIter => false,
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
-        :degMet => degMet,
+        :degMetUnusedPoles => degMetUnusedPoles,
         :M => M,
         :m => m,
         :Mprime => Mprime,
@@ -89,7 +89,7 @@ end
 
 function selectPole(graphState, j;
     verbose = false)
-    @unpack A, A_T, degPoleUnused, degMet, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, degPoleUnused, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
     # Update the set of covered meters (Mprime) and selected poles (Pprime)
 
@@ -101,7 +101,7 @@ function selectPole(graphState, j;
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
-        degMet[i] -= 1
+        degMetUnusedPoles[i] -= 1
     end
 
     # Remove pole j from degPoleUnused
@@ -117,9 +117,10 @@ function selectPole(graphState, j;
         A[i, j] = 0
     end
 
-    poles_used = length(Pprime)  # Update the number of poles used
+    poles_used = length(Pprime)
+    meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMet
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUnusedPoles, meters_covered
     return graphState
 end
 
