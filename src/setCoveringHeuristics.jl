@@ -52,6 +52,11 @@ function initializeGraph(filepath::String;
     A0 = deepcopy(A)
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
     A_T0 = deepcopy(A_T)
+    # Create adjacency list A_T0_adj
+    A_T0_adj = Dict{Int,Vector{Int}}()
+    for j in 1:max_j
+        A_T0_adj[j] = findall(A_T0[j, :] .== 1)
+    end
 
     # Initialize additional data structures
     P = sort(collect(1:max_j))  # 'Set' of all poles
@@ -67,6 +72,7 @@ function initializeGraph(filepath::String;
         :A0 => A0,
         :A_T => A_T,
         :A_T0 => A_T0,
+        :A_T0_adj => A_T0_adj,
         :Acov => Acov,
         :cleanupDoneLastIter => false,
         :cleanupRepeats => 10,
@@ -100,10 +106,10 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A, A_T, A_T0, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
-    meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
+    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
     Pprime = union(Pprime, j)  # Add pole j to Pprime
@@ -137,7 +143,7 @@ end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A, A_T, A_T0, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -147,7 +153,7 @@ function removePole!(graphState, j;
     Pprime = setdiff(Pprime, j)  # Remove pole j from Pprime
 
     HF.myprintln(verbose, "Pole $j to be removed")
-    meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
+    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
 
     # Update degrees for meters covered by pole j
@@ -252,8 +258,8 @@ function checkForRedundantPole(graphState, j;
     verbose::Bool = false)
 
     HF.myprintln(verbose, "Checking if pole $j is redundant")
-    @unpack degMetUsedPoles, A_T0 = graphState
-    meters_covered_by_j = findall(A_T0[j, :] .== 1)  # Find all meters covered by pole j
+    @unpack degMetUsedPoles, A_T0_adj = graphState
+    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     
     for i in meters_covered_by_j
         if degMetUsedPoles[i] == 1  # If meter i is only covered by pole j
