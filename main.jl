@@ -6,9 +6,11 @@ Revise.track(IntCombOpt567.helperFunctions)
 # testCase = "p4m6"
 # testCase = "phase1"
 testCase = "cap360"
+cleanupRepeats = 10
 
 sim_time = @belapsed begin
-    g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt")
+    g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
+    cleanupRepeats=cleanupRepeats)
     @profile sCH.solveSetCoveringProblem!(g)
     global graph = g
 end 

@@ -17,7 +17,8 @@ include("./helperFunctions.jl")
 import .helperFunctions as HF
 
 function initializeGraph(filepath::String;
-    maxiter::Int = 100000)
+    maxiter::Int = 100000,
+    cleanupRepeats::Int = 10)
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]
@@ -75,7 +76,7 @@ function initializeGraph(filepath::String;
         :A_T0_adj => A_T0_adj,
         :Acov => Acov,
         :cleanupDoneLastIter => false,
-        :cleanupRepeats => 10,
+        :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
         :degMetUsedPoles => degMetUsedPoles,
