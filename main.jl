@@ -4,9 +4,10 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
-# testCase = "phase1"
-testCase = "cap360"
-cleanupRepeats = 10
+testCase = "phase1"
+# testCase = "cap360"
+cleanupRepeats = 1
+# cleanupRepeats = 10
 
 sim_time = @belapsed begin
     g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
