@@ -8,11 +8,15 @@ Revise.track(IntCombOpt567.helperFunctions)
 testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
+scoring_function = "greedy"
+# scoring_function = "score1"
+# scoring_function = "score2"
 benchmarkTime = false
 # benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
-    cleanupRepeats=cleanupRepeats)
+    cleanupRepeats=cleanupRepeats,
+    scoring_function=scoring_function)
 
 #region solveSetCoveringProblem
 if benchmarkTime
