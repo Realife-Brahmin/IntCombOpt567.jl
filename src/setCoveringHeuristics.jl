@@ -18,7 +18,8 @@ import .helperFunctions as HF
 
 function initializeGraph(filepath::String;
     maxiter::Int = 100000,
-    cleanupRepeats::Int = 10)
+    cleanupRepeats::Int = 10,
+    scoring_function::String = "greedy")
     # Initialize arrays to store row and column indices for A and A_T
     rows_A = Int[]
     cols_A = Int[]
@@ -91,17 +92,29 @@ function initializeGraph(filepath::String;
         :Pprime => Pprime,
         :poles_used => 0,
         :meters_covered => 0,
+        :scoring_function => scoring_function,
     )
 
     return graphState
 end
 
 function chooseNextPole(graphState)
-    @unpack degPoleUnused = graphState
+    @unpack degPoleUnused, scoring_function = graphState
     if isempty(degPoleUnused)
         error("No unused poles available.")
     end
-    j_candidate = HF.argmax_smallestkey(degPoleUnused)[1]  # Pole with the maximum degree
+
+    if scoring_function == "greedy"
+        j_candidate = HF.argmax_smallestkey(degPoleUnused)
+        [1]  # Pole with the maximum degree
+    elseif scoring_function == "score1"
+        @error("Scoring function 'score1' not implemented.")
+    elseif scoring_function == "score2"
+        @error("Scoring function 'score2' not implemented.")
+    else
+        @error("Invalid scoring function: $scoring_function")
+    end
+
     return j_candidate
 end
 
@@ -222,12 +235,12 @@ function checkForStoppingCriteria(graphState;
     @unpack m, Mprime, k, maxiter = graphState
 
     if k >= maxiter
-        HF.myprintln(true, "Maximum iterations reached!")
+        HF.myprintln(verbose, "Maximum iterations reached!")
         return true
     end
 
     if length(Mprime) == m
-        HF.myprintln(true, "Stopping criterion met: All meters are covered")
+        HF.myprintln(verbose, "Stopping criterion met: All meters are covered")
         return true
     end
 
