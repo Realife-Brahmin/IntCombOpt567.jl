@@ -235,12 +235,12 @@ function checkForStoppingCriteria(graphState;
     @unpack m, Mprime, k, maxiter = graphState
 
     if k >= maxiter
-        HF.myprintln(true, "Maximum iterations reached!")
+        HF.myprintln(verbose, "Maximum iterations reached!")
         return true
     end
 
     if length(Mprime) == m
-        HF.myprintln(true, "Stopping criterion met: All meters are covered")
+        HF.myprintln(verbose, "Stopping criterion met: All meters are covered")
         return true
     end
 
