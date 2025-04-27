@@ -105,9 +105,11 @@ function chooseNextPole(graphState)
     end
 
     if scoring_function == "greedy"
-        j_candidate = HF.argmax_smallestkey(degPoleUnused)
-        [1]  # Pole with the maximum degree
+        j_candidate = HF.argmax_smallestkey(degPoleUnused)[1]  # Pole with the maximum degree
     elseif scoring_function == "score1"
+        # @unpack degMetUnusedPoles, degMetUsedPoles = graphState
+        # score1Dict = score1(degPoleUnused)
+        # j_candidate = HF.argmax_smallestkey(score1Dict)[1]  # Pole with the maximum degree
         @error("Scoring function 'score1' not implemented.")
     elseif scoring_function == "score2"
         @error("Scoring function 'score2' not implemented.")
