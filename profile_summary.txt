@@ -1,63 +1,71 @@
  Count  Overhead File                    Line Function
  =====  ======== ====                    ==== ========
-     1         0 @Base\set.jl              84 show(io::IOBuffer, s::Set{Int64})
-     1         0 @Base\dict.jl            498 getindex
-     1         0 @Base\array.jl          1563 insert!
-     1         0 @Base\libuv.jl            58 preserve_handle(x::Task)
-     1         0 @Base\iddict.jl           92 setindex!(d::IdDict{Any, Any}, va…
-     1         1 @Base\iddict.jl           72 rehash!
+     1         0 @Base\iobuffer.jl        460 unsafe_write(to::IOBuffer, p::Ptr…
+     1         0 @Base\promotion.jl       472 min
+     1         0 @Base\promotion.jl       533 min
+     1         0 @Base\intfuncs.jl        890 string(n::Int64; base::Int64, pad…
+     1         0 @Base\intfuncs.jl        861 split_sign
+     1         0 @Base\int.jl             188 abs
+     1         1 @Base\int.jl             142 flipsign
+     1         0 @Base\strings\io.jl      144 print_to_string(::String, ::Varar…
+     1         1 @Base\iobuffer.jl        470 unsafe_write(to::IOBuffer, p::Ptr…
+     1         0 @Base\abstractarray.jl  1201 copymutable
+     1         0 @Base\array.jl           415 similar
+     1         1 @Base\Base.jl              ? write(io::IOBuffer, c::Char)
+     1         0 @Base\simdloop.jl         69 macro expansion
+     1         1 @Base\strings\io.jl       39 print(io::IOBuffer, x::Int64)
+     1         0 @Base\abstractset.jl     216 setdiff(s::Set{Int64}, itrs::Int6…
      1         0 @Base\set.jl             116 copymutable
      1         0 @Base\set.jl              46 Set
      1         0 @Base\dict.jl             73 Dict
-     1         0 @Base\hashing.jl          42 hash_64_64
-     1         0 @Base\dict.jl            382 setindex!(h::Dict{Int64, Int64}, …
-     1         1 @Base\intfuncs.jl        761 append_c_digits(olength::Int64, d…
-     1         0 @Base\dict.jl            184 rehash!(h::Dict{Int64, Nothing}, …
-     1         1 …CoveringHeuristics.jl   135 addPole!(graphState::Dict{Symbol,…
-     1         0 @Base\strings\io.jl      142 print_to_string(::String, ::Varar…
+     1         1 @Base\array.jl           411 copy
      1         0 @Base\hashing.jl          48 hash_64_64
-     1         1 @Base\stream.jl         1073 uv_write_async(s::Base.TTY, p::Pt…
-     1         1 @Base\iobuffer.jl        332 ensureroom
-     1         0 @Base\io.jl              749 write(io::IOBuffer, c::Char)
-     1         1 @Base\int.jl             398 bswap
-     1         0 …ools\src\execution.jl   614 var"##sample#227"(::Tuple{}, __pa…
-     1         0 @Base\math.jl            909 max
-     1         1 @Base\floatfuncs.jl       15 signbit
+     1         1 @Base\iobuffer.jl          ? unsafe_write(to::IOBuffer, p::Ptr…
+     1         0 @Base\strings\io.jl      142 print_to_string(::String, ::Varar…
+     1         1 @Base\dict.jl              ? ht_keyindex2_shorthash!(h::Dict{I…
+     1         0 @Base\intfuncs.jl        767 append_c_digits(olength::Int64, d…
+     1         0 @Base\dict.jl            163 isslotmissing
+     1         1 @Base\int.jl             321 ~
+     1         1 @Base\pointer.jl         119 unsafe_load
+     1         0 @Base\intfuncs.jl        768 append_c_digits(olength::Int64, d…
+     1         0 @Base\operators.jl      1304 ∉(x::Int64, itr::Set{Int64})
+     1         0 @Base\set.jl              92 in
+     1         0 @Base\dict.jl            569 haskey
+     1         0 …CoveringHeuristics.jl   262 checkForRedundantPole(graphState:…
+     1         0 @UnPack\src\UnPack.jl    101 macro expansion
+     1         0 @UnPack\src\UnPack.jl     35 unpack
+     1         0 @Base\dict.jl            497 getindex
+     1         0 @Base\dict.jl            268 ht_keyindex(h::Dict{Symbol, Any},…
+     1         0 @Base\dict.jl            157 hashindex
+     1         0 @Base\intfuncs.jl        658 ndigits0z(x::Int64, b::Int64)
+     1         0 @Base\dict.jl            292 ht_keyindex2_shorthash!(h::Dict{I…
+     1         1 …CoveringHeuristics.jl   121 addPole!(graphState::Dict{Symbol,…
+     1         0 @Base\iobuffer.jl        340 ensureroom
+     1         0 …CoveringHeuristics.jl   214 solveSetCoveringProblem!(graphSta…
+     1         0 …CoveringHeuristics.jl   220 checkForStoppingCriteria
+     1         1 …CoveringHeuristics.jl   224 checkForStoppingCriteria(graphSta…
      1         0 @Base\intfuncs.jl        595 ndigits0zpb(x::UInt64, b::Int64)
      1         0 @Base\int.jl             518 ==
-     1         0 @Base\dict.jl            281 ht_keyindex(h::Dict{Int64, Vector…
-     1         1 …s\src\sparsematrix.jl  3135 _setindex_scalar!(A::SparseMatrix…
+     1         1 @Base\dict.jl              ? ht_keyindex(h::Dict{Int64, Vector…
+     1         0 @Base\dict.jl            174 rehash!(h::Dict{Int64, Nothing}, …
+     1         0 @Base\dict.jl            348 _setindex!
+     1         1 …CoveringHeuristics.jl   135 addPole!(graphState::Dict{Symbol,…
+     1         1 …CoveringHeuristics.jl   179 removePole!(graphState::Dict{Symb…
+     1         0 @Base\dict.jl            335 ht_keyindex2_shorthash!(h::Dict{I…
+     1         0 @Base\dict.jl            185 rehash!(h::Dict{Int64, Nothing}, …
+     1         0 @Base\hashing.jl          47 hash_64_64
+     1         1 @Base\int.jl             373 xor
+     1         0 …ase\strings\string.jl   111 pointer
+     1         1 @Base\pointer.jl          59 unsafe_convert
+     1         1 …CoveringHeuristics.jl   170 removePole!(graphState::Dict{Symb…
+     1         0 @Base\strings\io.jl      149 print_to_string(::String, ::Varar…
+     1         1 @Base\tuple.jl             ? iterate
+     1         1 @Base\intfuncs.jl        789 append_c_digits_fast(olength::Int…
+     1         1 @Base\iobuffer.jl        459 unsafe_write(to::IOBuffer, p::Ptr…
+     1         0 …CoveringHeuristics.jl   112 addPole!(graphState::Dict{Symbol,…
      1         0 @Base\iobuffer.jl        445 _unsafe_take!
      1         0 @Base\array.jl          1314 resize!
-     1         1 @Base\dict.jl              ? ht_keyindex(h::Dict{Symbol, Any},…
-     1         1 @Base\intfuncs.jl        881 string(n::Int64; base::Int64, pad…
-     1         0 @Base\iobuffer.jl        335 ensureroom
-     1         0 @Base\array.jl           907 grow_to!
-     1         0 @Base\iterators.jl       521 iterate(::Base.Iterators.Filter{I…
-     1         1 …s\src\sparsematrix.jl  3159 _insert!(v::Vector{Int64}, pos::I…
-     1         0 @Base\dict.jl            196 rehash!(h::Dict{Int64, Nothing}, …
      1         1 @Base\dict.jl            301 ht_keyindex2_shorthash!(h::Dict{I…
-     1         0 @Base\show.jl            576 modulesof!(s::Set{Module}, x::Typ…
-     1         0 …4\src\GLib\signals.jl   267 g_yield(data::UInt64)
-     1         0 …tk4\src\GLib\gtype.jl   386 run_delayed_finalizers()
-     1         0 @Base\lock.jl            265 macro expansion
-     1         0 @Base\lock.jl            147 lock
-     1         0 @Base\lock.jl            116 trylock
-     1         1 @Base\task.jl            150 current_task
-     1         0 …s\src\sparsematrix.jl  3132 _setindex_scalar!(A::SparseMatrix…
-     1         0 @Base\abstractarray.jl  1201 copymutable
-     1         0 @Base\array.jl           415 similar
-     1         1 …s\src\sparsematrix.jl  3155 _setindex_scalar!(A::SparseMatrix…
-     1         0 @Base\abstractset.jl     246 setdiff!
-     1         0 @Base\set.jl             112 delete!
-     1         0 @Base\dict.jl            696 delete!
-     1         1 @Base\int.jl              86 -(x::Int64, y::Int64)
-     1         0 @Base\abstractarray.jl   942 copyto!(dest::Vector{Int64}, src:…
-     1         1 @Base\libuv.jl            56 preserve_handle(x::Task)
-     1         0 …4\src\GLib\signals.jl   265 g_yield(data::UInt64)
-     1         0 …4\src\GLib\signals.jl   244 g_siginterruptible(f::typeof(yiel…
-     1         0 @Base\task.jl            889 yield()
-     1         1 @Base\iobuffer.jl          ? ensureroom
      1         0 @Base\sort.jl           1456 sort!
      1         0 @Base\sort.jl           1463 #sort!#28
      1         0 @Base\sort.jl            636 _sort!
@@ -65,560 +73,383 @@
      1         0 @Base\sort.jl            752 _sort!
      1         0 @Base\sort.jl            681 _sort!
      1         0 @Base\sort.jl            728 _sort!
-     1         0 @Base\sort.jl            750 _sort!
-     1         0 @Base\sort.jl            791 _sort!(v::Vector{Int64}, ::Base.S…
-     1         1 …rc\helperFunctions.jl    31 myprintln
-     1         1 @Base\iobuffer.jl          ? unsafe_write(to::IOBuffer, p::Ptr…
-     1         0 @Base\number.jl            7 convert
+     1         0 @Base\sort.jl            820 _sort!(v::Vector{Int64}, a::Base.…
+     1         0 @Base\sort.jl            846 _sort!(v::Vector{Int64}, a::Base.…
+     1         0 @Base\sort.jl            872 _sort!
+     1         0 @Base\sort.jl            930 _sort!(v::Vector{Int64}, a::Base.…
+     1         1 @Base\sort.jl              ? _sort!(v::Vector{Int64}, a::Base.…
+     1         1 @Base\abstractset.jl     107 union!(s::Set{Int64}, itr::Set{In…
+     1         0 …s\src\sparsematrix.jl  3143 _setindex_scalar!(A::SparseMatrix…
+     1         1 @Base\intfuncs.jl        775 append_c_digits(olength::Int64, d…
+     1         1 …CoveringHeuristics.jl   167 removePole!(graphState::Dict{Symb…
+     1         1 …s\src\sparsematrix.jl  3155 _setindex_scalar!(A::SparseMatrix…
+     1         1 …CoveringHeuristics.jl   161 removePole!(graphState::Dict{Symb…
+     1         0 @Base\iobuffer.jl        484 write
+     1         0 @Base\dict.jl            704 skip_deleted
+     1         0 @Base\simdloop.jl         78 macro expansion
      1         0 @Base\boot.jl            789 UInt64
      1         0 @Base\boot.jl            759 toUInt64
-     1         0 @Base\boot.jl            648 check_top_bit
-     1         1 @Base\boot.jl            638 is_top_bit_set
-     1         0 @Base\iobuffer.jl        122 IOBuffer(; read::Bool, write::Boo…
-     1         0 @Base\show.jl           1363 show_delim_array(io::IOBuffer, it…
-     1         0 @Base\iobuffer.jl        484 write
-     1         1 @Base\Base.jl             41 setproperty!
-     1         0 @Base\abstractset.jl     105 union!(s::Set{Int64}, itr::Set{In…
-     1         0 @Base\dict.jl            272 ht_keyindex(h::Dict{Symbol, Any},…
-     1         1 …CoveringHeuristics.jl   179 removePole!(graphState::Dict{Symb…
-     1         1 @Base\abstractset.jl     103 union!(s::Set{Int64}, itr::Vector…
-     1         1 @Base\show.jl           1333 show_delim_array(io::IOBuffer, it…
-     1         1 @Base\tuple.jl            31 getindex
-     1         0 …\strings\substring.jl   250 _string(::String, ::Vararg{String…
-     1         0 …\strings\substring.jl   208 __unsafe_string!
-     1         0 @Base\array.jl           288 unsafe_copyto!
-     1         1 @Base\cmem.jl             26 memmove
-     1         1 @Base\intfuncs.jl        811 dec(x::UInt64, pad::Int64, neg::B…
-     1         0 @Base\dict.jl            175 rehash!(h::Dict{Int64, Nothing}, …
-     1         0 @Base\set.jl              81 show(io::IOBuffer, s::Set{Int64})
-     1         0 @Base\strings\io.jl      149 print_to_string(::String, ::Varar…
-     1         0 @Base\boot.jl            496 Array
-     1         1 @Base\show.jl            614 make_typealias(x::Type)
-     1         1 @Base\array.jl           827 collect(itr::Base.Generator{Base.…
-     1         1 @Base\intfuncs.jl          ? string(n::Int64; base::Int64, pad…
-     1         0 …\strings\substring.jl   244 _string(::String, ::Vararg{String…
-     1         1 @Base\intfuncs.jl          ? ndigits0zpb(x::Int64, b::Int64)
-     1         0 …CoveringHeuristics.jl   254 cleanupGraph!(graphState::Dict{Sy…
-     1         0 @Base\strings\io.jl      125 _str_sizehint(x::String)
+     1         1 @Base\boot.jl            648 check_top_bit
+     1         0 @Base\arrayshow.jl       486 show
+     1         0 @Base\show.jl           1335 show_delim_array
+     1         0 @Base\show.jl           1355 show_delim_array(io::IOBuffer, it…
+     1         0 @Base\dict.jl            345 _setindex!
+     1         0 …CoveringHeuristics.jl   163 removePole!(graphState::Dict{Symb…
      1         1 @Base\intfuncs.jl        657 ndigits0z(x::Int64, b::Int64)
-     1         1 …CoveringHeuristics.jl   128 addPole!(graphState::Dict{Symbol,…
-     1         0 @Base\array.jl           715 _similar_for
-     1         0 @Base\abstractarray.jl   832 similar
-     1         0 @Base\abstractarray.jl   841 similar
-     1         0 @Base\dict.jl            705 skip_deleted
-     1         0 @Base\hashing.jl          47 hash_64_64
-     1         0 @Base\int.jl             534 >>
-     1         1 @Base\int.jl             528 >>
-     1         1 …CoveringHeuristics.jl   224 checkForStoppingCriteria(graphSta…
-     1         1 …CoveringHeuristics.jl   177 removePole!(graphState::Dict{Symb…
-     1         1 @Base\iobuffer.jl        473 unsafe_write(to::IOBuffer, p::Ptr…
-     1         0 @Base\stream.jl         1048 uv_write(s::Base.TTY, p::Ptr{UInt…
-     1         1 …CoveringHeuristics.jl   157 removePole!(graphState::Dict{Symb…
-     1         0 …compiler\typeinfer.jl   280 _typeinf(interp::Core.Compiler.Na…
-     1         0 …compiler\typeinfer.jl   576 store_backedges
-     1         1 …compiler\typeinfer.jl   583 store_backedges(caller::Core.Meth…
-     1         0 …compiler\typeinfer.jl   871 typeinf_edge(interp::Core.Compile…
-     1         0 …compiler\utilities.jl   212 specialize_method
-     1         1 …compiler\utilities.jl   224 #specialize_method#289
-     1         0 …ler\ssair\inlining.jl  1356 compute_inlining_cases(info::Core…
-     1         0 …compiler\typeinfer.jl  1049 typeinf_ext(interp::Core.Compiler…
-     1         0 …ler\inferencestate.jl   430 Core.Compiler.InferenceState(resu…
-     1         1 …compiler\utilities.jl   143 retrieve_code_info
-     1         0 …\compiler\ssair\ir.jl  1857 compact!(code::Core.Compiler.IRCo…
-     1         0 …\compiler\ssair\ir.jl  1670 iterate_compact(compact::Core.Com…
-     1         0 …\compiler\ssair\ir.jl  1327 process_node!(compact::Core.Compi…
-     1         0 …\compiler\ssair\ir.jl  1162 renumber_ssa2!(stmt::Any, ssanums…
-     1         1 …\compiler\ssair\ir.jl     ? _useref_getindex(stmt::Any, op::I…
-     1         1 @Base\iddict.jl           96 setindex!(d::Core.Compiler.IdDict…
-     1         1 …ler\ssair\inlining.jl   985 retrieve_ir_for_inlining
-     1         1 …ractinterpretation.jl  2002 abstract_call_known(interp::Core.…
+     1         0 …CoveringHeuristics.jl   162 removePole!(graphState::Dict{Symb…
+     1         0 …compiler\typeinfer.jl   283 _typeinf(interp::Core.Compiler.Na…
+     1         0 …compiler\typeinfer.jl   405 cache_result!(interp::Core.Compil…
+     1         0 …compiler\typeinfer.jl   379 transform_result_for_cache
+     1         1 …compiler\typeinfer.jl   360 maybe_compress_codeinfo(interp::C…
+     1         0 …piler\ssair\passes.jl  1113 sroa_pass!(ir::Core.Compiler.IRCo…
+     1         0 …piler\ssair\passes.jl   686 perform_lifting!(compact::Core.Co…
+     1         0 …ler\inferencestate.jl   178 get!
+     1         0 …iler\ssair\domtree.jl   239 update_domtree!
+     1         1 …iler\ssair\domtree.jl     ? DFS!(D::Core.Compiler.DFSTree, bl…
+     1         0 …ractinterpretation.jl  2054 abstract_call_known(interp::Core.…
+     1         0 …se\compiler\tfuncs.jl  2659 return_type_tfunc(interp::Core.Co…
+     1         0 …ractinterpretation.jl   812 abstract_call_method_with_const_a…
+     1         0 …ractinterpretation.jl  1168 semi_concrete_eval_call(interp::C…
+     1         0 …ler\ssair\irinterp.jl   384 ir_abstract_constant_propagation(…
+     1         0 …ler\ssair\irinterp.jl   206 _ir_abstract_constant_propagation…
+     1         0 …ler\ssair\irinterp.jl   251 _ir_abstract_constant_propagation…
+     1         0 …ler\ssair\irinterp.jl   126 reprocess_instruction!(interp::Co…
+     1         0 …ler\ssair\irinterp.jl    48 abstract_call(interp::Core.Compil…
+     1         0 …ractinterpretation.jl  2014 abstract_call_known(interp::Core.…
+     1         0 …ractinterpretation.jl  1739 abstract_call_builtin(interp::Cor…
+     1         0 …se\compiler\tfuncs.jl  2464 builtin_tfunction(interp::Core.Co…
+     1         0 @Base\set.jl              80 show(io::IOBuffer, s::Set{Int64})
+     1         0 @Base\show.jl            953 show(io::IOBuffer, x::Type)
+     1         0 @Base\show.jl            958 _show_type(io::IOBuffer, x::Type)
+     1         0 @Base\show.jl            793 show_typealias(io::IOBuffer, x::T…
+     1         1 @Base\show.jl            615 make_typealias(x::Type)
+     1         0 …compiler\typeinfer.jl   260 _typeinf(interp::Core.Compiler.Na…
+     1         0 …compiler\typeinfer.jl   568 finish(me::Core.Compiler.Inferenc…
+     1         1 …compiler\typeinfer.jl   473 adjust_effects(sv::Core.Compiler.…
+     1         0 …ler\ssair\inlining.jl  1453 handle_call!
+     1         0 …compiler\typeutils.jl    57 argtypes_to_type
+     1         0 …compiler\utilities.jl    43 anymap(f::Core.Compiler.var"#355#…
+     1         1 …compiler\typeutils.jl    57 (::Core.Compiler.var"#355#356")(a…
+     1         0 …ler\ssair\inlining.jl  1450 handle_call!
+     1         0 …ler\ssair\inlining.jl  1404 compute_inlining_cases(info::Core…
+     1         0 …ler\ssair\inlining.jl  1312 handle_any_const_result!
+     1         0 …ler\ssair\inlining.jl  1329 handle_any_const_result!(cases::V…
+     1         0 …ler\ssair\inlining.jl  1457 handle_match!
+     1         0 …ler\ssair\inlining.jl  1467 handle_match!(cases::Vector{Core.…
+     1         0 …ler\ssair\inlining.jl   950 analyze_method!
+     1         0 …ler\ssair\inlining.jl   981 analyze_method!(match::Core.Metho…
+     1         0 …ler\ssair\inlining.jl   871 resolve_todo
+     1         0 …ler\ssair\inlining.jl   908 resolve_todo(mi::Core.MethodInsta…
+     1         0 …ler\ssair\inlining.jl   986 retrieve_ir_for_inlining
+     1         0 …piler\ssair\legacy.jl    13 inflate_ir!(ci::Core.CodeInfo, li…
+     1         0 …er\inferenceresult.jl    27 matching_cache_argtypes
+     1         0 …er\inferenceresult.jl   109 most_general_argtypes
+     1         1 …er\inferenceresult.jl   111 most_general_argtypes(method::Met…
+     1         0 …ractinterpretation.jl   794 abstract_call_method_with_const_a…
+     1         1 …ractinterpretation.jl   909 concrete_eval_call(interp::Core.C…
+     1         0 …ractinterpretation.jl  2166 abstract_call(interp::Core.Compil…
+     1         0 …ractinterpretation.jl  2156 abstract_call_unknown(interp::Cor…
+     1         0 …\compiler\optimize.jl   623 slot2reg(ir::Core.Compiler.IRCode…
+     1         0 …iler\ssair\domtree.jl   225 GenericDomTree
+     1         0 …iler\ssair\domtree.jl    88 Core.Compiler.DFSTree(n_blocks::I…
      1         0 …\compiler\optimize.jl   526 convert_to_ircode(ci::Core.CodeIn…
      1         0 @Base\array.jl           694 collect
      1         0 @Base\array.jl           696 _collect
-     1         0 @Base\array.jl           385 copyto!
-     1         0 @Base\array.jl           363 copyto!
-     1         0 @Base\array.jl           376 _copyto_impl!
-     1         0 @Base\array.jl           353 unsafe_copyto!
-     1         1 @Base\array.jl           293 _unsafe_copyto!(dest::Vector{Core…
-     1         0 …piler\ssair\passes.jl  1113 sroa_pass!(ir::Core.Compiler.IRCo…
-     1         0 …piler\ssair\passes.jl   751 perform_lifting!(compact::Core.Co…
-     1         0 …piler\ssair\passes.jl   628 lifted_value(compact::Core.Compil…
-     1         0 …piler\ssair\passes.jl   189 simple_walk(compact::Core.Compile…
-     1         1 …piler\ssair\passes.jl     ? simple_walk(compact::Core.Compile…
-     1         0 …mpiler\methodtable.jl   113 findall(sig::Type, table::Core.Co…
-     1         0 …ler\ssair\inlining.jl   710 batch_inline!(ir::Core.Compiler.I…
-     1         0 …ler\ssair\inlining.jl   466 ir_inline_item!(compact::Core.Com…
-     1         0 …\compiler\ssair\ir.jl   986 setindex!
-     1         0 …\compiler\ssair\ir.jl   957 setindex!(compact::Core.Compiler.…
-     1         0 …\compiler\ssair\ir.jl   800 count_added_node!(compact::Core.C…
-     1         0 …\compiler\ssair\ir.jl   422 _useref_getindex(stmt::Any, op::I…
-     1         0 …piler\ssair\passes.jl   941 sroa_pass!(ir::Core.Compiler.IRCo…
-     1         0 …\compiler\ssair\ir.jl   673 IncrementalCompact
-     1         0 …\compiler\ssair\ir.jl   647 Core.Compiler.IncrementalCompact(…
-     1         0 …\compiler\ssair\ir.jl   201 Core.Compiler.InstructionStream(l…
-     1         0 @Base\array.jl           582 fill
-     1         0 @Base\array.jl           584 fill
-     1         0 …ler\ssair\inlining.jl   986 retrieve_ir_for_inlining
-     1         0 …piler\ssair\legacy.jl    14 inflate_ir!(ci::Core.CodeInfo, li…
-     1         0 …piler\ssair\legacy.jl    45 inflate_ir!(ci::Core.CodeInfo, sp…
-     1         0 …\compiler\ssair\ir.jl   343 IRCode
-     1         0 …\compiler\ssair\ir.jl   196 Core.Compiler.InstructionStream(l…
-     1         0 …piler\ssair\passes.jl  1792 adce_pass!(ir::Core.Compiler.IRCo…
-     1         0 …piler\ssair\passes.jl  1620 mark_phi_cycles!(compact::Core.Co…
-     1         1 …\compiler\ssair\ir.jl   515 userefs
-     1         0 …piler\ssair\passes.jl  1724 adce_pass!(ir::Core.Compiler.IRCo…
-     1         0 …\compiler\ssair\ir.jl  1672 iterate_compact(compact::Core.Com…
-     1         0 …piler\ssair\passes.jl  1103 sroa_pass!(ir::Core.Compiler.IRCo…
-     1         0 …piler\ssair\passes.jl   401 lift_leaves(compact::Core.Compile…
-     1         0 …piler\ssair\passes.jl   483 lift_arg!(compact::Core.Compiler.…
-     1         1 @Base\iddict.jl           86 setindex!(d::Core.Compiler.IdDict…
-     1         0 …ractinterpretation.jl  2015 abstract_call_known(interp::Core.…
-     1         0 …se\compiler\tfuncs.jl  2404 builtin_effects(𝕃::Core.Compiler.…
-     1         1 …compiler\utilities.jl    36 contains_is
-     1         0 …\compiler\optimize.jl   626 slot2reg(ir::Core.Compiler.IRCode…
-     1         0 …ler\ssair\slot2ssa.jl   716 construct_ssa!(ci::Core.CodeInfo,…
-     1         0 @Base\bitset.jl           18 BitSet
-     1         0 …ractinterpretation.jl  2914 abstract_eval_basic_statement(int…
-     1         1 …ractinterpretation.jl  2873 BasicStmtChange
-     1         0 …ractinterpretation.jl  2014 abstract_call_known(interp::Core.…
-     1         0 …ractinterpretation.jl  1739 abstract_call_builtin(interp::Cor…
-     1         0 …se\compiler\tfuncs.jl  2488 builtin_tfunction(interp::Core.Co…
-     1         0 …se\compiler\tfuncs.jl   808 typeassert_tfunc(𝕃::Core.Compiler…
-     1         0 …se\compiler\tfuncs.jl    99 instanceof_tfunc(t::Any)
-     1         1 …se\compiler\tfuncs.jl   101 instanceof_tfunc(t::Any, troot::C…
-     1         0 …\compiler\optimize.jl   260 stmt_effect_flags(𝕃ₒ::Core.Compil…
-     1         0 @Base\array.jl           726 _array_for
      1         0 @Base\array.jl           723 _array_for
      1         0 @Base\abstractarray.jl   875 similar
      1         0 @Base\abstractarray.jl   876 similar
-     1         0 …\compiler\optimize.jl   261 stmt_effect_flags(𝕃ₒ::Core.Compil…
-     1         0 …se\compiler\tfuncs.jl  2420 builtin_effects(𝕃::Core.Compiler.…
-     1         0 …se\compiler\tfuncs.jl  2435 builtin_nothrow
-     1         1 …se\compiler\tfuncs.jl  2095 _builtin_nothrow(𝕃::Core.Compiler…
-     1         0 …\compiler\ssair\ir.jl  1858 compact!(code::Core.Compiler.IRCo…
-     1         1 …\compiler\ssair\ir.jl  1829 finish(compact::Core.Compiler.Inc…
-     1         0 …\compiler\optimize.jl   623 slot2reg(ir::Core.Compiler.IRCode…
-     1         0 …iler\ssair\domtree.jl   229 construct_domtree(blocks::Vector{…
-     1         0 …iler\ssair\domtree.jl   246 update_domtree!
-     1         0 …iler\ssair\domtree.jl   372 SNCA!(domtree::Core.Compiler.Gene…
-     1         0 …ractinterpretation.jl  2086 abstract_call_known(interp::Core.…
-     1         0 …compiler\typeutils.jl    57 argtypes_to_type
-     2         2 …CoveringHeuristics.jl   245 cleanupGraph!(graphState::Dict{Sy…
-     2         0 @Base\dict.jl            295 ht_keyindex2_shorthash!(h::Dict{I…
-     2         0 @Base\dict.jl            157 hashindex
-     2         0 …s\src\sparsematrix.jl  1867 #18
-     2         0 …s\src\SparseArrays.jl    45 _isnotzero
-     2         0 @Base\number.jl           42 iszero
-     2         0 @Base\dict.jl            300 ht_keyindex2_shorthash!(h::Dict{I…
-     2         0 @Base\stream.jl         1039 uv_write(s::Base.TTY, p::Ptr{UInt…
-     2         0 @Base\abstractset.jl     216 setdiff(s::Set{Int64}, itrs::Int6…
-     2         2 @Base\array.jl           411 copy
-     2         0 …s\src\sparsematrix.jl  3151 _setindex_scalar!(A::SparseMatrix…
-     2         0 @Base\simdloop.jl         75 macro expansion
-     2         0 @Base\dict.jl            344 _setindex!
-     2         2 …CoveringHeuristics.jl   133 addPole!(graphState::Dict{Symbol,…
-     2         0 @Base\dict.jl            345 _setindex!
-     2         2 @Base\pointer.jl         119 unsafe_load
-     2         1 @Base\dict.jl            310 ht_keyindex2_shorthash!(h::Dict{I…
-     2         2 @Base\dict.jl            375 setindex!(h::Dict{Int64, Int64}, …
-     2         2 @Base\dict.jl             68 Dict{Module, Nothing}()
-     2         2 @Base\dict.jl            390 setindex!(h::Dict{Symbol, Any}, v…
-     2         0 …ools\src\execution.jl   611 var"##sample#227"(::Tuple{}, __pa…
-     2         2 @Base\Base.jl            114 time_ns
-     2         2 @Base\strings\io.jl      137 print_to_string(::String, ::Varar…
-     2         2 @Base\dict.jl            262 ht_keyindex(h::Dict{Symbol, Any},…
-     2         0 @Base\show.jl           1355 show_delim_array(io::IOBuffer, it…
-     2         0 @Base\dict.jl            379 setindex!(h::Dict{Int64, Nothing}…
-     2         0 @Base\intfuncs.jl        603 ndigits0zpb(x::Int64, b::Int64)
-     2         0 @Base\intfuncs.jl        557 bit_ndigits0z
-     2         0 …ase\strings\string.jl   111 pointer
-     2         2 @Base\pointer.jl          59 unsafe_convert
-     2         0 @Base\range.jl           897 iterate
-     2         0 @Base\range.jl           672 isempty
-     2         2 …CoveringHeuristics.jl   229 checkForStoppingCriteria(graphSta…
-     2         2 @Base\Base.jl            244 sizeof
-     2         2 …s\src\sparsematrix.jl  1811 _fkeep!(f::SparseArrays.var"#18#1…
-     2         2 @Base\intfuncs.jl        593 ndigits0zpb(x::UInt64, b::Int64)
-     2         0 …CoveringHeuristics.jl   141 addPole!(graphState::Dict{Symbol,…
-     2         0 @Base\intfuncs.jl        658 ndigits0z(x::Int64, b::Int64)
-     2         0 @Base\dict.jl            267 ht_keyindex(h::Dict{Int64, Vector…
+     1         0 @Base\boot.jl            486 Array
+     2         0 @Base\dict.jl            176 rehash!(h::Dict{Int64, Nothing}, …
+     2         0 @Base\array.jl           759 collect(itr::Set{Int64})
+     2         0 @Base\array.jl           765 _collect
      2         0 @Base\abstractarray.jl   947 copyto!(dest::Vector{Int64}, src:…
-     2         0 …4\src\GLib\signals.jl   363 uv_dispatch(src::Ptr{Nothing}, ca…
-     2         1 @Base\iobuffer.jl        459 unsafe_write(to::IOBuffer, p::Ptr…
-     2         0 @Base\show.jl           1354 show_delim_array(io::IOBuffer, it…
+     2         1 @Base\tuple.jl            72 iterate
+     2         2 @Base\intfuncs.jl          ? ndigits0zpb(x::UInt64, b::Int64)
      2         0 @Base\sort.jl           1489 sort(v::Vector{Int64})
      2         0 @Base\sort.jl           1489 sort(v::Vector{Int64}; kws::Base.…
-     2         2 …CoveringHeuristics.jl   170 removePole!(graphState::Dict{Symb…
-     2         2 @Base\promotion.jl       521 ==(x::Int64, y::Int64)
-     2         0 @Base\dict.jl            730 iterate
-     2         2 @Base\reflection.jl      247 isconst
-     2         2 @Base\iobuffer.jl        106 IOBuffer(; read::Bool, write::Boo…
-     2         2 …CoveringHeuristics.jl   119 addPole!(graphState::Dict{Symbol,…
-     2         0 @Base\task.jl           1010 wait()
-     2         2 @Base\libuv.jl           119 process_events
-     2         0 …s\src\sparsematrix.jl  1806 _fkeep!(f::SparseArrays.var"#18#1…
-     2         2 …CoveringHeuristics.jl   161 removePole!(graphState::Dict{Symb…
-     2         0 @Base\array.jl           476 fill!
-     2         2 @Base\cmem.jl             39 memset
-     2         2 …\strings\substring.jl   229 _string(::String, ::Vararg{String…
-     2         0 @Base\iobuffer.jl        460 unsafe_write(to::IOBuffer, p::Ptr…
-     2         0 @Base\promotion.jl       472 min
-     2         0 @Base\promotion.jl       533 min
-     2         2 @Base\essentials.jl      647 ifelse
-     2         0 @Base\strings\io.jl      144 print_to_string(::String, ::Varar…
-     2         2 @Base\intfuncs.jl          ? append_c_digits(olength::Int64, d…
-     2         0 …s\src\sparsematrix.jl  3134 _setindex_scalar!(A::SparseMatrix…
-     2         2 @Base\sort.jl            177 searchsortedfirst
-     2         0 @Base\intfuncs.jl        772 append_c_digits(olength::Int64, d…
-     2         0 @Base\promotion.jl       465 rem
-     2         2 @Base\int.jl             298 rem
-     2         0 @Base\dict.jl            317 ht_keyindex2_shorthash!(h::Dict{I…
-     2         0 …ractinterpretation.jl   812 abstract_call_method_with_const_a…
-     2         0 …ractinterpretation.jl  1165 semi_concrete_eval_call(interp::C…
-     2         2 …ler\inferencestate.jl   693 Core.Compiler.IRInterpretationSta…
-     2         0 …\compiler\ssair\ir.jl  1855 compact!
-     2         0 …\compiler\ssair\ir.jl  1592 iterate
-     2         0 …\compiler\ssair\ir.jl   453 getindex
-     2         0 …ler\ssair\inlining.jl  1404 compute_inlining_cases(info::Core…
-     2         0 …ler\ssair\inlining.jl  1312 handle_any_const_result!
-     2         0 …ler\ssair\inlining.jl  1329 handle_any_const_result!(cases::V…
-     2         0 …ler\ssair\inlining.jl  1457 handle_match!
-     2         0 …ler\ssair\inlining.jl  1467 handle_match!(cases::Vector{Core.…
-     2         0 …ler\ssair\inlining.jl   950 analyze_method!
-     2         0 …ler\ssair\inlining.jl   981 analyze_method!(match::Core.Metho…
-     2         0 …ler\ssair\inlining.jl   871 resolve_todo
-     2         0 …ler\ssair\inlining.jl   908 resolve_todo(mi::Core.MethodInsta…
-     2         0 …ractinterpretation.jl   794 abstract_call_method_with_const_a…
-     2         2 …ractinterpretation.jl   909 concrete_eval_call(interp::Core.C…
-     2         2 …CoveringHeuristics.jl   101 chooseNextPole(graphState::Dict{S…
-     2         0 …\compiler\ssair\ir.jl   278 NewNodeStream
-     2         0 …ler\ssair\inlining.jl   712 batch_inline!(ir::Core.Compiler.I…
-     2         0 …ler\ssair\inlining.jl   585 ir_inline_unionsplit!(compact::Co…
-     2         0 …\compiler\ssair\ir.jl   895 insert_node_here!
-     2         0 …\compiler\ssair\ir.jl   909 insert_node_here!(compact::Core.C…
-     2         0 …\compiler\ssair\ir.jl   825 recompute_inst_flag
+     2         0 @Base\iobuffer.jl        479 write
+     2         0 @Base\dict.jl            177 rehash!(h::Dict{Int64, Nothing}, …
+     2         2 @Base\dict.jl              ? iterate
+     2         2 …s\src\sparsematrix.jl  1805 _fkeep!(f::SparseArrays.var"#18#1…
+     2         0 @Base\int.jl            1066 +
+     2         0 @Base\int.jl             546 rem
+     2         0 @Base\boot.jl            784 Int64
+     2         2 @Base\boot.jl            711 toInt64
+     2         0 @Base\intfuncs.jl        661 ndigits0z(x::Int64, b::Int64)
+     2         2 @Base\intfuncs.jl        803 append_c_digits_fast(olength::Int…
+     2         0 @Base\hashing.jl          42 hash_64_64
+     2         2 @Base\intfuncs.jl          ? string(n::Int64; base::Int64, pad…
+     2         1 …CoveringHeuristics.jl   149 removePole!(graphState::Dict{Symb…
+     2         0 @Base\dict.jl            356 _setindex!
+     2         2 @Base\int.jl              88 *
+     2         2 …CoveringHeuristics.jl   138 addPole!(graphState::Dict{Symbol,…
+     2         2 @Base\iterators.jl       518 iterate(f::Base.Iterators.Filter{…
+     2         2 @Base\dict.jl            262 ht_keyindex(h::Dict{Int64, Int64}…
+     2         2 @Base\strings\io.jl      137 print_to_string(::String, ::Varar…
+     2         2 @Base\strings\io.jl       32 print(io::IOBuffer, x::Int64)
+     2         0 @Base\strings\io.jl      150 print_to_string(::String, ::Varar…
+     2         2 …CoveringHeuristics.jl   130 addPole!(graphState::Dict{Symbol,…
+     2         2 …CoveringHeuristics.jl   177 removePole!(graphState::Dict{Symb…
+     2         1 …CoveringHeuristics.jl   248 cleanupGraph!(graphState::Dict{Sy…
+     2         2 @Base\Base.jl             41 setproperty!
+     2         0 @Base\strings\io.jl      189 string(::String, ::Int64, ::Varar…
+     2         2 @Base\reduce.jl            ? _foldl_impl(op::Base.BottomRF{typ…
+     2         2 …CoveringHeuristics.jl   125 addPole!(graphState::Dict{Symbol,…
+     2         2 …CoveringHeuristics.jl   113 addPole!(graphState::Dict{Symbol,…
+     2         0 …iler\ssair\domtree.jl   229 construct_domtree(blocks::Vector{…
+     2         0 …ractinterpretation.jl   818 abstract_call_method_with_const_a…
+     2         0 …ractinterpretation.jl  1207 const_prop_call(interp::Core.Comp…
+     2         0 …ler\ssair\inlining.jl    78 ssa_inlining_pass!
+     2         0 …ler\ssair\inlining.jl  1698 assemble_inline_todo!(ir::Core.Co…
+     3         3 @Base\strings\io.jl       34 print(io::IOBuffer, x::Int64)
+     3         0 @Base\div.jl             202 divrem
+     3         0 @Base\iobuffer.jl        464 unsafe_write(to::IOBuffer, p::Ptr…
+     3         3 @Base\iobuffer.jl        106 IOBuffer(; read::Bool, write::Boo…
+     3         0 @Base\io.jl              749 write(io::IOBuffer, c::Char)
+     3         3 @Base\int.jl             398 bswap
+     3         2 …CoveringHeuristics.jl   154 removePole!(graphState::Dict{Symb…
+     3         0 …s\src\sparsematrix.jl  1807 _fkeep!(f::SparseArrays.var"#18#1…
+     3         3 …CoveringHeuristics.jl   245 cleanupGraph!(graphState::Dict{Sy…
+     3         0 @Base\number.jl            7 convert
+     3         1 @Base\iobuffer.jl        341 ensureroom
+     3         0 @Base\iobuffer.jl        336 ensureroom
+     3         0 @Base\dict.jl            379 setindex!(h::Dict{Int64, Nothing}…
+     3         2 …CoveringHeuristics.jl   206 solveSetCoveringProblem!(graphSta…
+     3         3 @Base\show.jl           1383 show_delim_array(io::IOBuffer, it…
      3         3 …CoveringHeuristics.jl   175 removePole!(graphState::Dict{Symb…
-     3         0 @Base\dict.jl            161 isslotempty
-     3         0 …CoveringHeuristics.jl   147 removePole!(graphState::Dict{Symb…
-     3         0 @Base\intfuncs.jl        767 append_c_digits(olength::Int64, d…
-     3         0 @Base\int.jl            1068 -
-     3         0 …CoveringHeuristics.jl   182 removePole!(graphState::Dict{Symb…
-     3         0 @Base\iobuffer.jl        465 unsafe_write(to::IOBuffer, p::Ptr…
-     3         3 @Base\show.jl              ? show_delim_array(io::IOBuffer, it…
-     3         3 …CoveringHeuristics.jl   138 addPole!(graphState::Dict{Symbol,…
-     3         0 @Base\dict.jl            268 ht_keyindex(h::Dict{Int64, Int64}…
-     3         0 @Base\dict.jl            156 hashindex
-     3         0 @Base\hashing.jl          28 hash
-     3         0 @Base\hashing.jl          84 hash
-     3         0 @Base\hashing.jl          75 hash_uint64
-     3         0 …CoveringHeuristics.jl   134 addPole!(graphState::Dict{Symbol,…
-     3         3 …CoveringHeuristics.jl   130 addPole!(graphState::Dict{Symbol,…
-     3         0 …CoveringHeuristics.jl   262 checkForRedundantPole(graphState:…
-     3         0 @Base\strings\io.jl      150 print_to_string(::String, ::Varar…
-     3         0 @Base\intfuncs.jl        661 ndigits0z(x::Int64, b::Int64)
-     3         3 @Base\intfuncs.jl        807 dec(x::UInt64, pad::Int64, neg::B…
-     3         0 @Base\intfuncs.jl        808 dec(x::UInt64, pad::Int64, neg::B…
-     3         0 @Base\intfuncs.jl        661 ndigits0z
-     3         3 …CoveringHeuristics.jl   122 addPole!(graphState::Dict{Symbol,…
-     3         3 @Base\dict.jl            275 ht_keyindex(h::Dict{Int64, Int64}…
-     3         1 @Base\dict.jl            720 _iterate
-     3         0 @Base\array.jl           632 zeros
-     3         0 @Base\array.jl           636 zeros
-     3         3 @Base\dict.jl            291 ht_keyindex2_shorthash!(h::Dict{M…
-     3         0 @Base\array.jl           911 grow_to!
-     3         0 @Base\array.jl           938 grow_to!(dest::Vector{Int64}, itr…
-     3         0 @Base\iterators.jl       516 iterate(f::Base.Iterators.Filter{…
-     3         3 …CoveringHeuristics.jl   167 removePole!(graphState::Dict{Symb…
-     3         0 @Base\dict.jl            177 rehash!(h::Dict{Int64, Nothing}, …
-     3         3 …ools\src\execution.jl   589 var"##sample#227"(::Tuple{}, __pa…
-     3         3 @IntCombOpt567\main.jl    16 macro expansion
+     3         0 …CoveringHeuristics.jl   158 removePole!(graphState::Dict{Symb…
+     3         0 …ractinterpretation.jl    24 abstract_call_gf_by_type(interp::…
+     3         0 …ractinterpretation.jl   288 find_matching_methods(𝕃::Core.Com…
+     3         0 …mpiler\methodtable.jl   110 findall
      3         0 …mpiler\methodtable.jl   119 findall(sig::Type, table::Core.Co…
      3         0 …mpiler\methodtable.jl    73 findall
      3         0 …mpiler\methodtable.jl    74 #findall#281
      3         0 …mpiler\methodtable.jl   105 _findall
      3         3 @Base\reflection.jl     1031 _methods_by_ftype(t::Any, mt::Not…
-     3         0 …ler\ssair\inlining.jl    78 ssa_inlining_pass!
-     3         0 …ler\ssair\inlining.jl  1698 assemble_inline_todo!(ir::Core.Co…
-     3         0 …ler\ssair\inlining.jl  1450 handle_call!
-     3         0 …compiler\typeinfer.jl   283 _typeinf(interp::Core.Compiler.Na…
-     3         0 …compiler\typeinfer.jl   405 cache_result!(interp::Core.Compil…
-     3         0 …compiler\typeinfer.jl   379 transform_result_for_cache
-     3         3 …compiler\typeinfer.jl   360 maybe_compress_codeinfo(interp::C…
-     3         0 …ractinterpretation.jl  2004 abstract_call_known(interp::Core.…
-     3         0 …ractinterpretation.jl  1612 abstract_apply(interp::Core.Compi…
-     3         0 …ractinterpretation.jl  2054 abstract_call_known(interp::Core.…
-     3         0 …se\compiler\tfuncs.jl  2659 return_type_tfunc(interp::Core.Co…
-     3         0 …ler\ssair\inlining.jl    81 ssa_inlining_pass!
-     4         0 @Base\dict.jl            176 rehash!(h::Dict{Int64, Nothing}, …
-     4         2 …s\src\sparsematrix.jl  1804 _fkeep!(f::SparseArrays.var"#18#1…
-     4         4 …ools\src\execution.jl   626 var"##sample#227"(::Tuple{}, __pa…
-     4         4 …CoveringHeuristics.jl   172 removePole!(graphState::Dict{Symb…
-     4         0 @Base\dict.jl            384 setindex!(h::Dict{Int64, Nothing}…
-     4         0 @Base\range.jl             5 Colon
-     4         0 @Base\range.jl           403 UnitRange
-     4         3 @Base\range.jl           414 unitrange_last
-     4         0 @Base\dict.jl            392 setindex!(h::Dict{Symbol, Any}, v…
-     4         4 @Base\strings\io.jl       32 print(io::IOBuffer, x::Int64)
-     4         4 @Base\Base.jl             37 getproperty
-     4         2 @Base\tuple.jl            72 iterate
-     4         3 …CoveringHeuristics.jl   164 removePole!(graphState::Dict{Symb…
-     4         4 …CoveringHeuristics.jl   149 removePole!(graphState::Dict{Symb…
-     4         1 @Base\intfuncs.jl        763 append_c_digits(olength::Int64, d…
-     4         0 @Base\operators.jl       425 >=
-     4         0 @Base\generator.jl        44 iterate
-     4         0 @Base\dict.jl            724 iterate
-     4         0 @Base\array.jl           759 collect(itr::Set{Int64})
-     4         0 @Base\array.jl           765 _collect
-     4         0 …\strings\substring.jl   225 string
-     4         0 …ractinterpretation.jl    24 abstract_call_gf_by_type(interp::…
-     4         0 …ractinterpretation.jl   288 find_matching_methods(𝕃::Core.Com…
-     4         0 …mpiler\methodtable.jl   110 findall
-     5         5 @Base\int.jl              86 -
-     5         1 …CoveringHeuristics.jl   173 removePole!(graphState::Dict{Symb…
-     5         3 …CoveringHeuristics.jl   248 cleanupGraph!(graphState::Dict{Sy…
-     5         0 …s\src\sparsematrix.jl  3150 _setindex_scalar!(A::SparseMatrix…
-     5         0 @Base\abstractset.jl     108 union!(s::Set{Int64}, itr::Set{In…
-     5         0 …s\src\sparsematrix.jl  1800 _fkeep!(f::SparseArrays.var"#18#1…
-     5         5 @Base\dict.jl              ? ht_keyindex2_shorthash!(h::Dict{S…
-     5         3 @Base\show.jl            613 make_typealias(x::Type)
-     5         2 @Base\dict.jl            734 iterate
-     5         0 @Base\dict.jl            497 getindex
-     5         5 @Base\int.jl             514 <=
-     5         5 @Base\show.jl            615 make_typealias(x::Type)
-     5         0 @Base\array.jl           831 collect(itr::Base.Generator{Base.…
-     5         5 …CoveringHeuristics.jl   270 checkForRedundantPole(graphState:…
-     5         0 …rc\helperFunctions.jl    14 argmax_smallestkey(dict::Dict{Int…
-     5         0 @Base\reduce.jl          764 maximum
-     5         0 @Base\reduce.jl          764 #maximum#312
-     5         0 @Base\reduce.jl          307 mapreduce
-     5         0 @Base\reduce.jl          307 #mapreduce#302
-     5         0 @Base\reduce.jl          175 mapfoldl
-     5         0 @Base\reduce.jl          175 #mapfoldl#298
-     5         0 @Base\reduce.jl           44 mapfoldl_impl
-     5         0 @Base\reduce.jl           48 foldl_impl
-     5         0 @Base\reduce.jl           60 _foldl_impl(op::Base.BottomRF{typ…
-     5         1 @Base\strings\basic.jl   260 *(::String, ::String, ::String)
-     6         0 @Base\intfuncs.jl        812 dec(x::UInt64, pad::Int64, neg::B…
-     6         3 …CoveringHeuristics.jl   121 addPole!(graphState::Dict{Symbol,…
-     6         0 @UnPack\src\UnPack.jl    101 macro expansion
-     6         0 @UnPack\src\UnPack.jl     35 unpack
-     6         4 …CoveringHeuristics.jl   154 removePole!(graphState::Dict{Symb…
-     6         6 …CoveringHeuristics.jl   252 cleanupGraph!(graphState::Dict{Sy…
-     6         3 …CoveringHeuristics.jl   263 checkForRedundantPole(graphState:…
-     6         6 @Base\iobuffer.jl        457 unsafe_write(to::IOBuffer, p::Ptr…
-     6         0 @UnPack\src\UnPack.jl    152 macro expansion
-     6         0 @UnPack\src\UnPack.jl     62 pack!
-     6         0 @Base\show.jl            603 make_typealias(x::Type)
-     6         5 …CoveringHeuristics.jl   171 removePole!(graphState::Dict{Symb…
-     6         0 …ools\src\execution.jl   612 var"##sample#227"(::Tuple{}, __pa…
-     6         6 @Base\timing.jl           30 gc_num
-     6         0 @Base\operators.jl       378 >
-     6         0 @Base\strings\io.jl      131 _str_sizehint(x::Int64)
-     6         0 …rc\helperFunctions.jl    15 argmax_smallestkey(dict::Dict{Int…
-     6         2 @Base\range.jl           901 iterate
-     6         0 @Base\boot.jl            486 Array
-     6         0 …ractinterpretation.jl   818 abstract_call_method_with_const_a…
-     6         0 …ractinterpretation.jl  1207 const_prop_call(interp::Core.Comp…
-     6         0 …\compiler\optimize.jl   602 convert_to_ircode(ci::Core.CodeIn…
-     6         0 …\compiler\ssair\ir.jl   101 compute_basic_blocks(stmts::Vecto…
-     6         0 …r\ssair\basicblock.jl    25 BasicBlock
-     7         0 @Base\array.jl          1315 resize!
-     7         0 …CoveringHeuristics.jl   158 removePole!(graphState::Dict{Symb…
-     7         0 @Base\show.jl           1346 show_delim_array(io::IOBuffer, it…
-     7         7 @Base\dict.jl            706 skip_deleted
-     7         1 @Base\dict.jl            709 skip_deleted
-     7         5 …CoveringHeuristics.jl   162 removePole!(graphState::Dict{Symb…
-     7         5 @Base\dict.jl            732 iterate
-     7         0 …CoveringHeuristics.jl   156 removePole!(graphState::Dict{Symb…
-     7         0 @Base\set.jl              71 emptymutable
-     7         0 @Base\array.jl           448 getindex
-     7         7 …CoveringHeuristics.jl   125 addPole!(graphState::Dict{Symbol,…
-     8         8 …ase\strings\string.jl    67 String
-     8         0 …s\src\sparsematrix.jl  3149 _setindex_scalar!(A::SparseMatrix…
-     8         0 …CoveringHeuristics.jl   112 addPole!(graphState::Dict{Symbol,…
-     8         0 @Gtk4\src\GLib\loop.jl    80 glib_main()
-     8         0 …4\src\GLib\signals.jl   211 g_sigatom(f::Any)
-     8         6 @Gtk4\src\GLib\loop.jl    83 (::Gtk4.GLib.var"#239#240")()
-     8         0 @Base\iobuffer.jl         84 GenericIOBuffer
-     8         0 @Base\iobuffer.jl         99 #IOBuffer#468
-     8         0 @Base\iobuffer.jl         28 GenericIOBuffer
-     8         8 @Base\iobuffer.jl         21 GenericIOBuffer
-     8         6 …CoveringHeuristics.jl   163 removePole!(graphState::Dict{Symb…
-     9         0 @Base\iobuffer.jl        464 unsafe_write(to::IOBuffer, p::Ptr…
-     9         2 @Base\dict.jl            497 getindex(h::Dict{Int64, Int64}, k…
-     9         9 @Base\strings\io.jl       34 print(io::IOBuffer, x::Int64)
-     9         8 @Base\iobuffer.jl        463 unsafe_write(to::IOBuffer, p::Ptr…
-     9         0 @Base\show.jl           1389 show_delim_array(io::IOBuffer, it…
-     9         0 @Base\iobuffer.jl        477 write
-     9         0 @Base\intfuncs.jl        700 ndigits
-     9         0 @Base\intfuncs.jl        700 #ndigits#472
-     9         0 …ractinterpretation.jl   103 abstract_call_gf_by_type(interp::…
-     9         0 …ractinterpretation.jl   788 abstract_call_method_with_const_a…
-     9         8 …CoveringHeuristics.jl   113 addPole!(graphState::Dict{Symbol,…
-    10         0 @Base\abstractset.jl     104 union!(s::Set{Int64}, itr::Set{In…
-    10         0 @Base\set.jl             120 sizehint!
-    10         0 @Base\dict.jl            225 sizehint!
-    10         0 @Base\dict.jl             70 Dict{Module, Nothing}()
-    10         0 @Base\io.jl              752 write(io::IOBuffer, c::Char)
-    11        11 @Base\essentials.jl       13 getindex
-    11         0 @Base\array.jl          1561 insert!
-    11        11 @Base\array.jl          1074 _growat!
-    11        11 @Base\int.jl              87 +
-    11         0 @Base\show.jl           1388 show_delim_array(io::IOBuffer, it…
-    11         0 @Base\iobuffer.jl        458 unsafe_write(to::IOBuffer, p::Ptr…
-    12         0 @Base\arrayshow.jl       486 show
-    12         0 @Base\show.jl           1335 show_delim_array
-    12        12 @Base\promotion.jl       521 ==
-    12         0 …s\src\sparsematrix.jl  3161 _insert!(v::Vector{Int64}, pos::I…
-    12        12 @Base\int.jl              83 <
-    12         0 @Base\set.jl              45 Set
-    12         0 @Base\show.jl           1377 show_delim_array(io::IOBuffer, it…
-    12         1 @Base\char.jl            252 print
-    13         0 @Base\dict.jl            377 setindex!(h::Dict{Int64, Int64}, …
-    13        13 @Base\array.jl          1021 setindex!
-    13         0 …s\src\sparsematrix.jl  1867 dropzeros!(A::SparseMatrixCSC{Int…
-    13         0 …s\src\sparsematrix.jl  1836 fkeep!
-    13         0 @Base\io.jl              431 unsafe_write
-    13         0 …CoveringHeuristics.jl   176 removePole!(graphState::Dict{Symb…
-    14        14 …CoveringHeuristics.jl   265 checkForRedundantPole(graphState:…
-    14         0 @Base\intfuncs.jl        810 dec(x::UInt64, pad::Int64, neg::B…
-    14         2 @Base\intfuncs.jl        802 append_c_digits_fast(olength::Int…
-    14         0 @Base\dict.jl            731 iterate
-    15        14 …CoveringHeuristics.jl   120 addPole!(graphState::Dict{Symbol,…
-    15         3 @Base\strings\io.jl      189 string(::String, ::Int64, ::Varar…
-    16         0 @Base\strings\io.jl      250 print(io::IOBuffer, s::String)
-    16         3 …CoveringHeuristics.jl   206 solveSetCoveringProblem!(graphSta…
-    17         0 @Base\abstractset.jl     106 union!(s::Set{Int64}, itr::Set{In…
-    17         0 @Base\iobuffer.jl        342 ensureroom
-    18         0 @Base\set.jl             103 push!
-    18        13 @IntCombOpt567\main.jl    13 macro expansion
-    18         0 …ractinterpretation.jl  2889 abstract_eval_basic_statement(int…
-    19        15 …CoveringHeuristics.jl   266 checkForRedundantPole(graphState:…
-    21         0 @Base\set.jl             124 iterate
-    21        14 …CoveringHeuristics.jl   243 cleanupGraph!(graphState::Dict{Sy…
-    22         0 …compiler\typeinfer.jl   272 _typeinf(interp::Core.Compiler.Na…
-    22         0 …\compiler\optimize.jl   453 optimize
-    22         0 …\compiler\optimize.jl   504 run_passes
-    22         0 …\compiler\optimize.jl   489 run_passes(ci::Core.CodeInfo, sv:…
-    23        13 …CoveringHeuristics.jl   136 addPole!(graphState::Dict{Symbol,…
-    23         3 …s\src\sparsematrix.jl  3123 setindex!(A::SparseMatrixCSC{Int6…
-    23         0 @Base\iobuffer.jl        115 IOBuffer(; read::Bool, write::Boo…
-    23        23 …ase\strings\string.jl   100 unsafe_wrap
-    24        24 @Base\array.jl          1072 _growend!
-    24        10 …CoveringHeuristics.jl   116 addPole!(graphState::Dict{Symbol,…
-    25         0 …CoveringHeuristics.jl   114 addPole!(graphState::Dict{Symbol,…
-    25        25 @Base\boot.jl            477 Array
-    26         0 @Base\strings\io.jl      146 print_to_string(::String, ::Varar…
-    26         0 @Base\iobuffer.jl        106 GenericIOBuffer
-    31        24 …CoveringHeuristics.jl   129 addPole!(graphState::Dict{Symbol,…
-    33         5 …CoveringHeuristics.jl   115 addPole!(graphState::Dict{Symbol,…
-    34         0 @Base\abstractset.jl      87 union!
-    35         0 @Base\show.jl            612 make_typealias(x::Type)
-    35         0 @Base\reflection.jl       91 unsorted_names
-    35        35 @Base\reflection.jl       91 #unsorted_names#9
-    36        36 @Base\stream.jl         1080 uv_write_async(s::Base.TTY, p::Pt…
-    37         0 @Base\stream.jl         1037 uv_write(s::Base.TTY, p::Ptr{UInt…
-    37        36 …ase\strings\string.jl    90 _string_n
-    37         0 …ractinterpretation.jl  2913 abstract_eval_basic_statement(int…
-    40         0 @Base\strings\io.jl       46 print(::Base.TTY, ::String, ::Str…
-    40         0 @Base\stream.jl         1120 unsafe_write(s::Base.TTY, p::Ptr{…
-    41         0 @Base\abstractset.jl      57 union(s::Set{Int64}, sets::Vector…
-    41         0 …compiler\typeinfer.jl  1051 typeinf_ext(interp::Core.Compiler…
-    41         0 …compiler\typeinfer.jl   216 typeinf(interp::Core.Compiler.Nat…
-    41         0 …compiler\typeinfer.jl   247 _typeinf(interp::Core.Compiler.Na…
-    41         0 …ractinterpretation.jl  3186 typeinf_nocycle(interp::Core.Comp…
-    41         0 …ractinterpretation.jl  3098 typeinf_local(interp::Core.Compil…
-    41         0 …ractinterpretation.jl  2624 abstract_eval_statement(interp::C…
-    41         0 …ractinterpretation.jl  2380 abstract_eval_statement_expr(inte…
-    41         0 …ractinterpretation.jl  2370 abstract_eval_call(interp::Core.C…
-    41         0 …ractinterpretation.jl  2354 abstract_call(interp::Core.Compil…
-    41         0 …ractinterpretation.jl  2162 abstract_call(interp::Core.Compil…
-    41         0 …ractinterpretation.jl  2169 abstract_call(interp::Core.Compil…
-    41         1 …ractinterpretation.jl  2087 abstract_call_known(interp::Core.…
-    41         0 …ractinterpretation.jl    95 abstract_call_gf_by_type(interp::…
-    41         0 …ractinterpretation.jl   629 abstract_call_method(interp::Core…
-    41         0 …compiler\typeinfer.jl   930 typeinf_edge(interp::Core.Compile…
-    42         2 @Base\strings\io.jl       75 println(::Base.TTY, ::String, ::V…
-    42         0 …compiler\typeinfer.jl  1078 typeinf_ext_toplevel(mi::Core.Met…
-    42         0 …compiler\typeinfer.jl  1082 typeinf_ext_toplevel(interp::Core…
-    44         0 @Base\intfuncs.jl        809 dec(x::UInt64, pad::Int64, neg::B…
-    45         0 …CoveringHeuristics.jl   230 checkForStoppingCriteria(graphSta…
-    45         0 …rc\helperFunctions.jl    32 myprintln
-    45         3 @Base\coreio.jl            4 println(xs::String)
-    48         0 …CoveringHeuristics.jl   214 solveSetCoveringProblem!(graphSta…
-    48         0 …CoveringHeuristics.jl   220 checkForStoppingCriteria
-    49         0 @Base\show.jl           1378 show_delim_array(io::IOBuffer, it…
-    52         0 @Base\set.jl              80 show(io::IOBuffer, s::Set{Int64})
-    52         0 @Base\show.jl            953 show(io::IOBuffer, x::Type)
-    52         0 @Base\show.jl            958 _show_type(io::IOBuffer, x::Type)
-    52         0 @Base\show.jl            793 show_typealias(io::IOBuffer, x::T…
-    55         0 @Base\strings\io.jl      250 print
-    58        51 @Base\strings\io.jl      143 print_to_string(::String, ::Varar…
-    59         0 @Base\iobuffer.jl         32 StringVector
-    71         0 @Base\intfuncs.jl        891 string(n::Int64; base::Int64, pad…
-    74         1 @Base\intfuncs.jl        881 string
-    74         0 …CoveringHeuristics.jl   261 checkForRedundantPole(graphState:…
-    81        55 …CoveringHeuristics.jl   104 chooseNextPole(graphState::Dict{S…
-    82         0 …CoveringHeuristics.jl   267 checkForRedundantPole(graphState:…
-    83         0 …CoveringHeuristics.jl   195 solveSetCoveringProblem!(graphSta…
-    85         0 @Base\set.jl              85 show(io::IOBuffer, s::Set{Int64})
-    85         0 @Base\show.jl           1363 show_delim_array
-    89         2 @Base\strings\io.jl      248 write
-    90         0 …CoveringHeuristics.jl   145 kwcall(::@NamedTuple{verbose::Boo…
-    92         0 @Base\show.jl           1195 show
-    97         0 @Base\arrayshow.jl       515 show_vector
-    97         0 @Base\arrayshow.jl       530 show_vector(io::IOBuffer, v::Vect…
-   107        15 …CoveringHeuristics.jl   249 cleanupGraph!(graphState::Dict{Sy…
-   126         0 …rofile\src\Profile.jl    46 macro expansion
-   126       126 …rofile\src\Profile.jl   591 stop_timer
-   198        11 @Base\strings\io.jl       35 print(io::IOBuffer, x::Vector{Int…
-   201         0 …CoveringHeuristics.jl   108 addPole!(graphState::Dict{Symbol,…
-   203         0 …CoveringHeuristics.jl   258 kwcall(::@NamedTuple{verbose::Boo…
-   219        15 …CoveringHeuristics.jl   196 solveSetCoveringProblem!(graphSta…
-   219        15 …CoveringHeuristics.jl   246 cleanupGraph!(graphState::Dict{Sy…
-   264         0 …CoveringHeuristics.jl   194 solveSetCoveringProblem!(graphSta…
-   359         0 …ools\src\execution.jl   609 var"##sample#227"(::Tuple{}, __pa…
-   360         0 …ools\src\execution.jl   186 _lineartrial(b::BenchmarkTools.Be…
-   361         0 …CoveringHeuristics.jl   211 solveSetCoveringProblem!(graphSta…
-   361         0 …CoveringHeuristics.jl   237 cleanupGraph!
-   373         0 …ools\src\execution.jl   192 _lineartrial(b::BenchmarkTools.Be…
-   382       145 @Base\strings\io.jl      148 print_to_string(::String, ::Varar…
-   456         0 …ools\src\execution.jl   135 kwcall(::@NamedTuple{warmup::Bool…
-   456         0 …ools\src\execution.jl   135 run
-   456         0 …ools\src\execution.jl   143 run(b::BenchmarkTools.Benchmark, …
-   456         0 …ools\src\execution.jl    47 run_result
-   456         0 …ools\src\execution.jl    48 #run_result#45
-   456         0 @Base\essentials.jl      894 #invokelatest#2
-   456         0 …ools\src\execution.jl   109 kwcall(::@NamedTuple{warmup::Bool…
-   456         0 …ools\src\execution.jl   124 _run(b::BenchmarkTools.Benchmark,…
-   466         3 @Base\strings\io.jl      189 string
-   733         0 …ools\src\execution.jl   288 tune!(b::BenchmarkTools.Benchmark)
-   733         0 …ools\src\execution.jl   288 tune!
-   733         0 …ools\src\execution.jl   299 tune!(b::BenchmarkTools.Benchmark…
-   733         0 …ools\src\execution.jl    50 lineartrial
-   733         0 …ools\src\execution.jl    51 #lineartrial#46
-   733         0 …ools\src\execution.jl   181 _lineartrial(b::BenchmarkTools.Be…
-   814         0 …ools\src\execution.jl   607 var"##sample#227"(::Tuple{}, __pa…
-   991         0 …CoveringHeuristics.jl   187 solveSetCoveringProblem!(graphSta…
-  1026        29 …rofile\src\Profile.jl    44 macro expansion
-  1152         0 @IntCombOpt567\main.jl    15 macro expansion
-  1173         0 …ools\src\execution.jl   598 var"##core#226"()
-  1189         0 …odeServer\src\eval.jl    34 (::VSCodeServer.var"#64#65")()
-  1189         0 @Base\essentials.jl      889 invokelatest(::Any)
-  1189         0 @Base\essentials.jl      892 #invokelatest#2
-  1189         0 …odeServer\src\eval.jl   263 (::VSCodeServer.var"#66#71"{VSCod…
-  1189         0 @Base\logging.jl         627 with_logger
-  1189         0 @Base\logging.jl         515 with_logstate(f::Function, logsta…
-  1189         0 …odeServer\src\eval.jl   150 (::VSCodeServer.var"#67#72"{Bool,…
-  1189         0 …odeServer\src\repl.jl    38 hideprompt(f::VSCodeServer.var"#6…
-  1189         0 …odeServer\src\eval.jl   179 (::VSCodeServer.var"#68#73"{Bool,…
-  1189         0 …odeServer\src\repl.jl   276 withpath(f::VSCodeServer.var"#69#…
-  1189         0 …odeServer\src\eval.jl   181 (::VSCodeServer.var"#69#74"{Bool,…
-  1189         0 …odeServer\src\eval.jl   268 kwcall(::@NamedTuple{softscope::B…
-  1189         0 …odeServer\src\eval.jl   271 inlineeval(m::Module, code::Strin…
-  1189         0 @Base\essentials.jl      892 invokelatest(::Any, ::Any, ::Vara…
-  1189         0 @Base\loading.jl        2156 include_string(m::Module, txt::St…
-  1189         0 @Base\loading.jl        2146 include_string(mapexpr::typeof(id…
-  1189         0 @Base\boot.jl            385 eval
-  1189         0 @Base\essentials.jl      889 invokelatest
-Total snapshots: 1198. Utilization: 100% across all threads and tasks. Use the `groupby` kwarg to break down by thread and/or task.
+     4         2 @Base\iobuffer.jl        332 ensureroom
+     4         4 @Base\intfuncs.jl        807 dec(x::UInt64, pad::Int64, neg::B…
+     4         4 @Base\dict.jl            375 setindex!(h::Dict{Int64, Nothing}…
+     4         3 @Base\boot.jl            477 Array
+     4         0 @Base\intfuncs.jl        603 ndigits0zpb(x::UInt64, b::Int64)
+     4         0 @Base\intfuncs.jl        557 bit_ndigits0z
+     4         4 @Base\intfuncs.jl        761 append_c_digits(olength::Int64, d…
+     4         0 @Base\dict.jl            295 ht_keyindex2_shorthash!(h::Dict{I…
+     4         0 @Base\dict.jl            156 hashindex
+     4         0 @Base\hashing.jl          28 hash
+     4         0 @Base\hashing.jl          84 hash
+     4         0 @Base\hashing.jl          75 hash_uint64
+     4         1 @Base\array.jl           945 iterate(A::Vector{Int64}, i::Int6…
+     4         0 @Base\strings\io.jl      131 _str_sizehint(x::Int64)
+     4         0 …CoveringHeuristics.jl   120 addPole!(graphState::Dict{Symbol,…
+     4         4 @Base\io.jl              748 write(io::IOBuffer, c::Char)
+     4         0 …CoveringHeuristics.jl   114 addPole!(graphState::Dict{Symbol,…
+     4         4 @Base\dict.jl            720 _iterate
+     4         0 @Base\range.jl           897 iterate
+     4         0 @Base\range.jl           672 isempty
+     4         0 …ractinterpretation.jl  2004 abstract_call_known(interp::Core.…
+     4         0 …ractinterpretation.jl  1612 abstract_apply(interp::Core.Compi…
+     4         0 …ractinterpretation.jl   103 abstract_call_gf_by_type(interp::…
+     4         0 …ractinterpretation.jl   788 abstract_call_method_with_const_a…
+     5         0 @Base\div.jl             201 divrem
+     5         0 @Base\div.jl              47 div
+     5         0 @Base\div.jl             343 div
+     5         5 @Base\int.jl             297 div
+     5         0 @Base\abstractset.jl     104 union!(s::Set{Int64}, itr::Set{In…
+     5         0 @Base\set.jl             120 sizehint!
+     5         0 @Base\dict.jl            225 sizehint!
+     5         0 @Base\array.jl          1315 resize!
+     5         5 @Base\dict.jl              ? skip_deleted
+     5         0 @Base\int.jl            1068 -
+     5         0 @Base\dict.jl            300 ht_keyindex2_shorthash!(h::Dict{I…
+     5         5 @Base\iterators.jl       517 iterate(f::Base.Iterators.Filter{…
+     5         0 …ractinterpretation.jl  2889 abstract_eval_basic_statement(int…
+     5         0 …compiler\typeinfer.jl   272 _typeinf(interp::Core.Compiler.Na…
+     5         0 …\compiler\optimize.jl   453 optimize
+     5         0 …\compiler\optimize.jl   504 run_passes
+     5         0 …\compiler\optimize.jl   489 run_passes(ci::Core.CodeInfo, sv:…
+     6         0 @Base\iobuffer.jl         84 GenericIOBuffer
+     6         0 @Base\iobuffer.jl         99 #IOBuffer#468
+     6         0 @Base\iobuffer.jl         28 GenericIOBuffer
+     6         6 @Base\iobuffer.jl         21 GenericIOBuffer
+     6         5 @Base\iobuffer.jl        463 unsafe_write(to::IOBuffer, p::Ptr…
+     6         4 …s\src\sparsematrix.jl  1811 _fkeep!(f::SparseArrays.var"#18#1…
+     6         6 @Base\iobuffer.jl        473 unsafe_write(to::IOBuffer, p::Ptr…
+     6         0 …s\src\sparsematrix.jl  1800 _fkeep!(f::SparseArrays.var"#18#1…
+     7         1 @Base\dict.jl            705 skip_deleted
+     7         3 …CoveringHeuristics.jl   243 cleanupGraph!(graphState::Dict{Sy…
+     7         3 @Base\intfuncs.jl        763 append_c_digits(olength::Int64, d…
+     7         2 @Base\intfuncs.jl        661 ndigits0z
+     7         0 @Base\reduce.jl           62 _foldl_impl(op::Base.BottomRF{typ…
+     7         0 @Base\reduce.jl           86 BottomRF
+     7         0 @Base\promotion.jl       532 max
+     8         0 @Base\intfuncs.jl        764 append_c_digits(olength::Int64, d…
+     8         0 @Base\div.jl             179 divrem
+     8         0 @Base\range.jl             5 Colon
+     8         0 @Base\range.jl           403 UnitRange
+     8         2 @Base\range.jl           414 unitrange_last
+     8         8 @Base\essentials.jl      647 ifelse
+     8         0 @Base\iterators.jl       521 iterate(f::Base.Iterators.Filter{…
+     8         0 @Base\dict.jl            724 iterate
+     9         0 …CoveringHeuristics.jl   173 removePole!(graphState::Dict{Symb…
+     9         9 @Base\int.jl              86 -
+     9         0 @Base\strings\io.jl      250 print(io::IOBuffer, s::String)
+     9         0 @Base\intfuncs.jl        808 dec(x::UInt64, pad::Int64, neg::B…
+     9         9 @Base\iobuffer.jl        457 unsafe_write(to::IOBuffer, p::Ptr…
+     9         2 …CoveringHeuristics.jl   116 addPole!(graphState::Dict{Symbol,…
+    10         0 @Base\operators.jl       425 >=
+    11        11 @Base\int.jl             514 <=
+    11         0 @Base\dict.jl            344 _setindex!
+    11         0 @Base\intfuncs.jl        700 ndigits
+    11         0 @Base\intfuncs.jl        700 #ndigits#472
+    12        11 …CoveringHeuristics.jl   252 cleanupGraph!(graphState::Dict{Sy…
+    12        12 @Base\int.jl              87 +
+    12         9 @Base\dict.jl            734 iterate
+    12         0 @Base\simdloop.jl         77 macro expansion
+    12         0 …s\src\sparsematrix.jl  3152 macro expansion
+    12         0 …compiler\typeinfer.jl  1078 typeinf_ext_toplevel(mi::Core.Met…
+    12         0 …compiler\typeinfer.jl  1082 typeinf_ext_toplevel(interp::Core…
+    12         0 …compiler\typeinfer.jl  1051 typeinf_ext(interp::Core.Compiler…
+    12         0 …compiler\typeinfer.jl   216 typeinf(interp::Core.Compiler.Nat…
+    12         0 …compiler\typeinfer.jl   247 _typeinf(interp::Core.Compiler.Na…
+    12         0 …ractinterpretation.jl  3186 typeinf_nocycle(interp::Core.Comp…
+    12         0 …ractinterpretation.jl  3098 typeinf_local(interp::Core.Compil…
+    12         0 …ractinterpretation.jl  2913 abstract_eval_basic_statement(int…
+    12         0 …ractinterpretation.jl  2624 abstract_eval_statement(interp::C…
+    12         0 …ractinterpretation.jl  2380 abstract_eval_statement_expr(inte…
+    12         0 …ractinterpretation.jl  2370 abstract_eval_call(interp::Core.C…
+    12         0 …ractinterpretation.jl  2354 abstract_call(interp::Core.Compil…
+    12         0 …ractinterpretation.jl  2162 abstract_call(interp::Core.Compil…
+    12         0 …ractinterpretation.jl  2169 abstract_call(interp::Core.Compil…
+    12         0 …ractinterpretation.jl  2087 abstract_call_known(interp::Core.…
+    12         0 …ractinterpretation.jl    95 abstract_call_gf_by_type(interp::…
+    12         0 …ractinterpretation.jl   629 abstract_call_method(interp::Core…
+    12         0 …compiler\typeinfer.jl   930 typeinf_edge(interp::Core.Compile…
+    13         0 @Base\dict.jl            377 setindex!(h::Dict{Int64, Nothing}…
+    13         0 @Base\operators.jl       378 >
+    14         0 …s\src\sparsematrix.jl  3151 _setindex_scalar!(A::SparseMatrix…
+    14        14 @Base\int.jl              83 <
+    15         0 @Base\dict.jl            384 setindex!(h::Dict{Int64, Nothing}…
+    15        15 @Base\Base.jl             37 getproperty
+    15         0 …rc\helperFunctions.jl    15 argmax_smallestkey(dict::Dict{Int…
+    15         0 @Base\array.jl           831 collect(itr::Base.Generator{Base.…
+    15         0 @Base\array.jl           911 grow_to!
+    15         0 @Base\array.jl           938 grow_to!(dest::Vector{Int64}, itr…
+    15         0 @Base\generator.jl        44 iterate
+    16         0 …s\src\sparsematrix.jl  1814 _fkeep!(f::SparseArrays.var"#18#1…
+    18        18 @Base\dict.jl            706 skip_deleted
+    18         0 @Base\iobuffer.jl        115 IOBuffer(; read::Bool, write::Boo…
+    18         0 @Base\reduce.jl           60 _foldl_impl(op::Base.BottomRF{typ…
+    18         0 @Base\dict.jl            498 getindex(h::Dict{Int64, Int64}, k…
+    19         0 …s\src\sparsematrix.jl  1806 _fkeep!(f::SparseArrays.var"#18#1…
+    19         0 @Base\intfuncs.jl        812 dec(x::UInt64, pad::Int64, neg::B…
+    19        17 @Base\dict.jl            732 iterate
+    19         1 @Base\dict.jl            709 skip_deleted
+    20        20 …ase\strings\string.jl    67 String
+    21         0 @Base\strings\io.jl      146 print_to_string(::String, ::Varar…
+    21         0 @Base\iobuffer.jl        106 GenericIOBuffer
+    21         0 @Base\abstractset.jl     108 union!(s::Set{Int64}, itr::Set{In…
+    22         1 @Base\dict.jl            272 ht_keyindex(h::Dict{Int64, Int64}…
+    23         0 @Base\iobuffer.jl        477 write
+    23         4 …CoveringHeuristics.jl   129 addPole!(graphState::Dict{Symbol,…
+    24         2 @Base\intfuncs.jl        802 append_c_digits_fast(olength::Int…
+    25         7 …CoveringHeuristics.jl   263 checkForRedundantPole(graphState:…
+    26         0 @Base\io.jl              752 write(io::IOBuffer, c::Char)
+    26        23 …CoveringHeuristics.jl   270 checkForRedundantPole(graphState:…
+    26         0 @Base\dict.jl            161 isslotempty
+    27         0 …rc\helperFunctions.jl    14 argmax_smallestkey(dict::Dict{Int…
+    27         0 @Base\reduce.jl          764 maximum
+    27         0 @Base\reduce.jl          764 #maximum#312
+    27         0 @Base\reduce.jl          307 mapreduce
+    27         0 @Base\reduce.jl          307 #mapreduce#302
+    27         0 @Base\reduce.jl          175 mapfoldl
+    27         0 @Base\reduce.jl          175 #mapfoldl#298
+    27         0 @Base\reduce.jl           44 mapfoldl_impl
+    27         0 @Base\reduce.jl           48 foldl_impl
+    28         1 @Base\intfuncs.jl        810 dec(x::UInt64, pad::Int64, neg::B…
+    29         0 @Base\show.jl           1388 show_delim_array(io::IOBuffer, it…
+    29         0 @Base\strings\io.jl      250 print
+    31        31 @Base\essentials.jl       13 getindex
+    34        34 @Base\array.jl          1021 setindex!
+    34         0 @Base\show.jl           1389 show_delim_array(io::IOBuffer, it…
+    35         1 @Base\char.jl            252 print
+    36        18 @Base\range.jl           901 iterate
+    37        37 …ase\strings\string.jl   100 unsafe_wrap
+    38         0 @Base\show.jl           1377 show_delim_array(io::IOBuffer, it…
+    39         0 @Base\abstractset.jl     106 union!(s::Set{Int64}, itr::Set{In…
+    39         4 @Base\set.jl             103 push!
+    42        42 @Base\dict.jl            275 ht_keyindex(h::Dict{Int64, Vector…
+    43        39 @Base\strings\io.jl      143 print_to_string(::String, ::Varar…
+    43         0 @Base\io.jl              431 unsafe_write
+    45        45 …CoveringHeuristics.jl   265 checkForRedundantPole(graphState:…
+    46         0 @Base\dict.jl            731 iterate
+    46         0 …s\src\sparsematrix.jl  1867 #18
+    46         0 …s\src\SparseArrays.jl    45 _isnotzero
+    46         0 @Base\number.jl           42 iszero
+    47         1 …s\src\sparsematrix.jl  1804 _fkeep!(f::SparseArrays.var"#18#1…
+    48        47 …ase\strings\string.jl    90 _string_n
+    49         0 @Base\iobuffer.jl        458 unsafe_write(to::IOBuffer, p::Ptr…
+    59         0 …CoveringHeuristics.jl   261 checkForRedundantPole(graphState:…
+    59         0 …CoveringHeuristics.jl   195 solveSetCoveringProblem!(graphSta…
+    59        15 …CoveringHeuristics.jl   104 chooseNextPole(graphState::Dict{S…
+    61         0 @Base\set.jl             124 iterate
+    61         0 @Base\iobuffer.jl        342 ensureroom
+    61         1 …CoveringHeuristics.jl   115 addPole!(graphState::Dict{Symbol,…
+    66        66 @Base\array.jl          1072 _growend!
+    66         0 @Base\abstractset.jl      57 union(s::Set{Int64}, sets::Vector…
+    66         0 @Base\abstractset.jl      87 union!
+    67         1 @Base\dict.jl            497 getindex(h::Dict{Int64, Vector{In…
+    73         0 @Base\intfuncs.jl        809 dec(x::UInt64, pad::Int64, neg::B…
+    83         5 @Base\strings\io.jl      248 write
+    83        22 …CoveringHeuristics.jl   266 checkForRedundantPole(graphState:…
+    85         0 @Base\iobuffer.jl         32 StringVector
+    88        88 @Base\promotion.jl       521 ==
+    91         0 …CoveringHeuristics.jl   267 checkForRedundantPole(graphState:…
+    94         4 …CoveringHeuristics.jl   136 addPole!(graphState::Dict{Symbol,…
+    99         0 …s\src\sparsematrix.jl  1867 dropzeros!(A::SparseMatrixCSC{Int…
+    99         0 …s\src\sparsematrix.jl  1836 fkeep!
+   133         0 @Base\intfuncs.jl        891 string(n::Int64; base::Int64, pad…
+   136         0 @Base\intfuncs.jl        881 string
+   153         0 @Base\show.jl           1378 show_delim_array(io::IOBuffer, it…
+   181         0 @Base\show.jl           1195 show
+   206         0 …CoveringHeuristics.jl   108 addPole!(graphState::Dict{Symbol,…
+   211         4 …CoveringHeuristics.jl   196 solveSetCoveringProblem!(graphSta…
+   225         0 …s\src\sparsematrix.jl  3150 _setindex_scalar!(A::SparseMatrix…
+   227         0 …s\src\sparsematrix.jl  3149 _setindex_scalar!(A::SparseMatrix…
+   257         0 @Base\set.jl              85 show(io::IOBuffer, s::Set{Int64})
+   257         0 @Base\show.jl           1363 show_delim_array
+   258         0 @Base\arrayshow.jl       515 show_vector
+   258         0 @Base\arrayshow.jl       530 show_vector(io::IOBuffer, v::Set{…
+   282         0 …CoveringHeuristics.jl   194 solveSetCoveringProblem!(graphSta…
+   293         6 @Base\strings\io.jl       35 print(io::IOBuffer, x::Set{Int64})
+   330         0 …CoveringHeuristics.jl   258 kwcall(::@NamedTuple{verbose::Boo…
+   336         6 …CoveringHeuristics.jl   246 cleanupGraph!(graphState::Dict{Sy…
+   365        55 @Base\strings\io.jl      148 print_to_string(::String, ::Varar…
+   440         6 @Base\strings\io.jl      189 string
+   449         0 …CoveringHeuristics.jl   176 removePole!(graphState::Dict{Symb…
+   452         0 …s\src\sparsematrix.jl  3161 _insert!(v::Vector{Int64}, pos::I…
+   452         0 @Base\array.jl          1561 insert!
+   452       452 @Base\array.jl          1074 _growat!
+   468         0 …s\src\sparsematrix.jl  3123 setindex!(A::SparseMatrixCSC{Int6…
+   477         0 …CoveringHeuristics.jl   145 kwcall(::@NamedTuple{verbose::Boo…
+   482         5 …CoveringHeuristics.jl   249 cleanupGraph!(graphState::Dict{Sy…
+   842         0 …CoveringHeuristics.jl   211 solveSetCoveringProblem!(graphSta…
+   842         0 …CoveringHeuristics.jl   237 cleanupGraph!
+  1398         0 …CoveringHeuristics.jl   187 solveSetCoveringProblem!(graphSta…
+  1412         0 …odeServer\src\eval.jl    34 (::VSCodeServer.var"#64#65")()
+  1412         0 @Base\essentials.jl      889 invokelatest(::Any)
+  1412         0 @Base\essentials.jl      892 #invokelatest#2
+  1412         0 …odeServer\src\eval.jl   263 (::VSCodeServer.var"#66#71"{VSCod…
+  1412         0 @Base\logging.jl         627 with_logger
+  1412         0 @Base\logging.jl         515 with_logstate(f::Function, logsta…
+  1412         0 …odeServer\src\eval.jl   150 (::VSCodeServer.var"#67#72"{Bool,…
+  1412         0 …odeServer\src\repl.jl    38 hideprompt(f::VSCodeServer.var"#6…
+  1412         0 …odeServer\src\eval.jl   179 (::VSCodeServer.var"#68#73"{Bool,…
+  1412         0 …odeServer\src\repl.jl   276 withpath(f::VSCodeServer.var"#69#…
+  1412         0 …odeServer\src\eval.jl   181 (::VSCodeServer.var"#69#74"{Bool,…
+  1412         0 …odeServer\src\eval.jl   268 kwcall(::@NamedTuple{softscope::B…
+  1412         0 …odeServer\src\eval.jl   271 inlineeval(m::Module, code::Strin…
+  1412         0 @Base\essentials.jl      892 invokelatest(::Any, ::Any, ::Vara…
+  1412         0 @Base\loading.jl        2156 include_string(m::Module, txt::St…
+  1412         0 @Base\loading.jl        2146 include_string(mapexpr::typeof(id…
+  1412         8 @Base\boot.jl            385 eval
+Total snapshots: 1413. Utilization: 100% across all threads and tasks. Use the `groupby` kwarg to break down by thread and/or task.

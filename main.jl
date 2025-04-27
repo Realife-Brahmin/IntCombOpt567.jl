@@ -4,17 +4,30 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
-testCase = "phase1"
-# testCase = "cap360"
+# testCase = "phase1"
+testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
+benchmarkTime = false
+# benchmarkTime = true
 
-sim_time = @belapsed begin
-    g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
+g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats)
-    @profile sCH.solveSetCoveringProblem!(g)
-    global graph = g
+
+#region solveSetCoveringProblem
+if benchmarkTime
+    sim_time = @belapsed begin
+        @profile sCH.solveSetCoveringProblem!(g)
+        global graph = g
+    end
+else
+    @profile begin
+        global graph = sCH.solveSetCoveringProblem!(g)
+    end
+    sim_time = "not_benchmarked"
 end 
+#endregion solveSetCoveringProblem
+
 myprintln(true, "sim_time=$(sim_time)")
 
 @unpack poles_used, meters_covered, Acov, m = graph
