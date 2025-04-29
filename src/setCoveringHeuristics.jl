@@ -259,9 +259,7 @@ function removePole!(graphState, j;
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
-            @warn("We don't come here do we?")
-            Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole (shouldn't really happen)
-            degMetUncovered[i] = nnz(A[i, :])  # Add meter i back to degMetUncovered
+            @error("Removal of pole $j leaves meter $i uncovered! Why was this selected?")
         end
     end
 
