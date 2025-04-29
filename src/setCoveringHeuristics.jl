@@ -114,20 +114,23 @@ function initializeGraph(filepath::String;
     return graphState
 end
 
-function chooseNextPole(graphState)
+function chooseNextPole(graphState; verbose::Bool = false)
+
     @unpack degPoleUnused, scoring_function = graphState
     if isempty(degPoleUnused)
         error("No unused poles available.")
     end
 
     if scoring_function == "score1" || scoring_function == "score2"
-        @unpack degMetUncovered = graphState
+        @unpack degMetUncovered, A0_adj = graphState
         k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
         scoreDict = compute_score(degMetUncovered, degPoleUnused, A0_adj, k=k, verbose=verbose)
 
         if isempty(scoreDict)
-            @warn("Zero hard to cover meters found. Proceeding with greedy selection.")
+            HF.myprintln(verbose, "Zero hard to cover meters found. Proceeding with greedy selection.")
             scoreDict = degPoleUnused  # Fallback to greedy selection
+        else
+            HF.myprintln(true, "ScoreDict length = $(length(scoreDict))")
         end
     elseif scoring_function == "greedy"
         scoreDict = degPoleUnused 

@@ -4,15 +4,16 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
+# testCase = "p6m6"
 testCase = "phase1"
-testCase = "cap360"
+# testCase = "cap360"
 cleanupRepeats = 1
-cleanupRepeats = 10
-scoring_function = "greedy"
-# scoring_function = "score1"
+# cleanupRepeats = 10
+# scoring_function = "greedy"
+scoring_function = "score1"
 # scoring_function = "score2"
 benchmarkTime = false
-benchmarkTime = true
+# benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
