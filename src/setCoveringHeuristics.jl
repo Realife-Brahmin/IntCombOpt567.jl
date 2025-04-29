@@ -54,12 +54,30 @@ function initializeGraph(filepath::String;
     # Create sparse matrices A and A_T
     A = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
     A0 = deepcopy(A)
+    # A0_adj = Dict{Int,Vector{Int}}()
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
     A_T0 = deepcopy(A_T)
     # Create adjacency list A_T0_adj
+    # A_T0_adj = Dict{Int,Vector{Int}}()
+    # for j in 1:max_j
+        # A_T0_adj[j] = findall(A_T0[j, :] .== 1)
+    # end
+
+    A0_adj = Dict{Int,Vector{Int}}()
     A_T0_adj = Dict{Int,Vector{Int}}()
+
+    # Initialize adjacency lists
+    for i in 1:max_i
+        A0_adj[i] = Vector{Int}()
+    end
     for j in 1:max_j
-        A_T0_adj[j] = findall(A_T0[j, :] .== 1)
+        A_T0_adj[j] = Vector{Int}()
+    end
+
+    # Populate adjacency lists
+    for (i, j) in zip(rows_A, cols_A)
+        push!(A0_adj[i], j)  # Add pole j to the list of poles for meter i
+        push!(A_T0_adj[j], i)  # Add meter i to the list of meters for pole j
     end
 
     # Initialize additional data structures
@@ -74,6 +92,7 @@ function initializeGraph(filepath::String;
     graphState = Dict(
         :A => A,
         :A0 => A0,
+        :A0_adj => A0_adj,
         :A_T => A_T,
         :A_T0 => A_T0,
         :A_T0_adj => A_T0_adj,
