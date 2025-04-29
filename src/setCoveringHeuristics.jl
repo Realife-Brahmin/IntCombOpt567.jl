@@ -54,14 +54,8 @@ function initializeGraph(filepath::String;
     # Create sparse matrices A and A_T
     A = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
     A0 = deepcopy(A)
-    # A0_adj = Dict{Int,Vector{Int}}()
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
     A_T0 = deepcopy(A_T)
-    # Create adjacency list A_T0_adj
-    # A_T0_adj = Dict{Int,Vector{Int}}()
-    # for j in 1:max_j
-        # A_T0_adj[j] = findall(A_T0[j, :] .== 1)
-    # end
 
     A0_adj = Dict{Int,Vector{Int}}()
     A_T0_adj = Dict{Int,Vector{Int}}()
