@@ -27,6 +27,7 @@ function initializeGraph(filepath::String;
     cols_AT = Int[]
 
     # Initialize dictionaries to count degrees
+    degMetUncovered = Dict{Int, Int}()  # Degree of each meter not currently in Mprime
     degPoleUnused = Dict{Int, Int}()  # Degree of each pole (column j)
     degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
     degMetUsedPoles = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
@@ -41,6 +42,7 @@ function initializeGraph(filepath::String;
 
         # Update degree counts
         degMetUnusedPoles[i] = get(degMetUnusedPoles, i, 0) + 1
+        degMetUncovered[i] = degMetUnusedPoles[i]
         degMetUsedPoles[i] = 0
         degPoleUnused[j] = get(degPoleUnused, j, 0) + 1
     end
@@ -80,6 +82,7 @@ function initializeGraph(filepath::String;
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
         :degPoleUnused => degPoleUnused,
+        :degMetUncovered => degMetUncovered,
         :degMetUsedPoles => degMetUsedPoles,
         :degMetUnusedPoles => degMetUnusedPoles,
         :k => 0,
@@ -122,7 +125,7 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
     meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
@@ -134,6 +137,7 @@ function addPole!(graphState, j;
     for i in meters_covered_by_j
         degMetUnusedPoles[i] -= 1
         degMetUsedPoles[i] += 1
+        delete!(degMetUncovered, i)  # Remove meter i from degMetUnusedPoles if it is now covered by a pole
     end
 
     # Remove pole j from degPoleUnused
@@ -153,13 +157,13 @@ function addPole!(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -177,7 +181,8 @@ function removePole!(graphState, j;
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
-            Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole
+            Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole (shouldn't really happen)
+            degMetUncovered[i] = nnz(A[i, :])  # Add meter i back to degMetUncovered
         end
     end
 
@@ -194,7 +199,7 @@ function removePole!(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 
 end
