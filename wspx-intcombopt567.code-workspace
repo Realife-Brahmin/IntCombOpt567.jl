@@ -11,6 +11,10 @@
 		"sundial.sunrise": "06:00",
 		"sundial.sunset": "19:00",
 		"julia.environmentPath": "${userHome}\\Documents\\documents_general\\IntCombOpt567.jl",
+		"cSpell.words": [
+			"Mprime",
+			"Pprime"
+		],
 	},
 	"extensions": {
 		"recommendations": [
