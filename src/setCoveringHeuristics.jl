@@ -64,6 +64,8 @@ function initializeGraph(filepath::String;
     for i in 1:max_i
         A0_adj[i] = Vector{Int}()
     end
+    A_adj = deepcopy(A0_adj)
+
     for j in 1:max_j
         A_T0_adj[j] = Vector{Int}()
     end
@@ -85,6 +87,7 @@ function initializeGraph(filepath::String;
 
     graphState = Dict(
         :A => A,
+        :A_adj => A_adj,
         :A0 => A0,
         :A0_adj => A0_adj,
         :A_T => A_T,
@@ -122,9 +125,9 @@ function chooseNextPole(graphState; verbose::Bool = false)
     end
 
     if scoring_function == "score1" || scoring_function == "score2"
-        @unpack degMetUncovered, A0_adj = graphState
+        @unpack degMetUncovered, A_adj = graphState
         k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
-        scoreDict = compute_score(degMetUncovered, degPoleUnused, A0_adj, k=k, verbose=verbose)
+        scoreDict = compute_score(degMetUncovered, degPoleUnused, A_adj, k=k, verbose=verbose)
     elseif scoring_function == "greedy"
         scoreDict = degPoleUnused 
     else
@@ -132,6 +135,7 @@ function chooseNextPole(graphState; verbose::Bool = false)
     end
 
     j_candidate = HF.argmax_smallestkey(scoreDict)[1]  # Pole with the maximum degree
+    # j_candidate = argmax(scoreDict)[1]  # Pole with the maximum degree
 
     return j_candidate
 end
@@ -174,17 +178,17 @@ function addPole!(graphState, j;
     return graphState
 end
 
-function compute_score(degMetUncovered, degPoleUnused, A0_adj; verbose::Bool = false, k=1)
+function compute_score(degMetUncovered, degPoleUnused, A_adj; verbose::Bool = false, k=1)
 
     htc_threshold = minimum(values(degMetUncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
-    HF.myprintln(true, "Hard-to-cover threshold: $htc_threshold")
+    HF.myprintln(verbose, "Hard-to-cover threshold: $htc_threshold")
     scoreDict = Dict{Int, Int}()
     
     if k == 1
         for i ∈ keys(degMetUncovered)
             if degMetUncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
-                for j ∈ A0_adj[i]
+                for j ∈ A_adj[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = degPoleUnused[j]
                 end
@@ -194,7 +198,7 @@ function compute_score(degMetUncovered, degPoleUnused, A0_adj; verbose::Bool = f
         for i ∈ keys(degMetUncovered)
             if degMetUncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
-                for j ∈ A0_adj[i]
+                for j ∈ A_adj[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = get(scoreDict, j, 0) + degPoleUnused[j]
                 end
@@ -235,7 +239,7 @@ end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A_adj, A_T, A_T0_adj, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -250,6 +254,7 @@ function removePole!(graphState, j;
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
+        A_adj[i] = setdiff(A_adj[i], j)  # Remove pole j from the adjacency list of meter i
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
@@ -271,7 +276,7 @@ function removePole!(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Acov, A_adj, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 
 end

@@ -9,10 +9,11 @@ Revise.track(IntCombOpt567.helperFunctions)
 testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
+# cleanupRepeats = 30
 # cleanupRepeats = 100
 # scoring_function = "greedy"
-scoring_function = "score1"
-# scoring_function = "score2"
+# scoring_function = "score1"
+scoring_function = "score2"
 benchmarkTime = false
 # benchmarkTime = true
 
