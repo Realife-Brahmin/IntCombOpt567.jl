@@ -120,18 +120,22 @@ function chooseNextPole(graphState)
         error("No unused poles available.")
     end
 
-    if scoring_function == "greedy"
-        j_candidate = HF.argmax_smallestkey(degPoleUnused)[1]  # Pole with the maximum degree
-    elseif scoring_function == "score1"
-        # @unpack degMetUnusedPoles, degMetUsedPoles = graphState
-        # score1Dict = score1(degPoleUnused)
-        # j_candidate = HF.argmax_smallestkey(score1Dict)[1]  # Pole with the maximum degree
-        @error("Scoring function 'score1' not implemented.")
-    elseif scoring_function == "score2"
-        @error("Scoring function 'score2' not implemented.")
+    if scoring_function == "score1" || scoring_function == "score2"
+        @unpack degMetUncovered = graphState
+        k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
+        scoreDict = compute_score(degMetUncovered, degPoleUnused, A0_adj, k=k, verbose=verbose)
+
+        if isempty(scoreDict)
+            @warn("Zero hard to cover meters found. Proceeding with greedy selection.")
+            scoreDict = degPoleUnused  # Fallback to greedy selection
+        end
+    elseif scoring_function == "greedy"
+        scoreDict = degPoleUnused 
     else
         @error("Invalid scoring function: $scoring_function")
     end
+
+    j_candidate = HF.argmax_smallestkey(scoreDict)[1]  # Pole with the maximum degree
 
     return j_candidate
 end
@@ -172,6 +176,32 @@ function addPole!(graphState, j;
     # Update the graph state
     @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
+end
+
+function compute_score(degMetUncovered, degPoleUnused, A0_adj; verbose::Bool = false, k=1)
+    scoreDict = Dict{Int, Int}()
+
+    if k == 1
+        for i ∈ keys(degMetUncovered)
+            if degMetUncovered[i] == 1
+                for j ∈ A0_adj[i]
+                    scoreDict[j] = degPoleUnused[j]
+                end
+            end
+        end
+    elseif k == 2
+        for i ∈ keys(degMetUncovered)
+            if degMetUncovered[i] == 1
+                for j ∈ A0_adj[i]
+                    scoreDict[j] = get(scoreDict, j, 0) + degPoleUnused[j]
+                end
+            end
+        end
+    else
+        @error("Invalid value for k: $k")
+    end
+
+    return scoreDict
 end
 
 function removePole!(graphState, j;
