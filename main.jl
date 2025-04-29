@@ -12,8 +12,8 @@ cleanupRepeats = 1
 # cleanupRepeats = 30
 # cleanupRepeats = 100
 scoring_function = "greedy"
-# scoring_function = "score1"
-# scoring_function = "score2"
+scoring_function = "score1"
+scoring_function = "score2"
 # benchmarkTime = false
 benchmarkTime = true
 
