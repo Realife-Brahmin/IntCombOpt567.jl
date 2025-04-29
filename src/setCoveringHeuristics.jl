@@ -147,18 +147,30 @@ function addPole!(graphState, j;
     HF.myprintln(verbose, "Pole $j to be added")
     meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
-    Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
+
     Pprime = union(Pprime, j)  # Add pole j to Pprime
+    Premaining = setdiff(Premaining, j)  # Selected pole no longer on market
+    delete!(degPolesRemaining, j) # Selected pole no longer on market
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
-        degMetUnusedPoles[i] -= 1
-        degMetUsedPoles[i] += 1
-        delete!(degMetUncovered, i)  # Remove meter i from degMetUnusedPoles if it is now covered by a pole
+        degMetUnusedPoles[i] -= 1 # one less remaining pole which can cover meter i
+        degMetUsedPoles[i] += 1 # another pole which now covers meter i
+        if !(i ∈ Mprime) # i.e. a previously uncovered meter is being covered by pole j
+            delete!(degMetUncovered, i)  # meter i now no longer uncovered
+
+            # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
+            other_remaining_poles_also_covering_i = intersect(A0_adj[i], Premaining)
+
+            for j_other in other_remaining_poles_also_covering_i
+                degPolesRemaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
+            end
+        end
     end
 
-    # Remove pole j from degPoleUnused
-    delete!(degPoleUnused, j)
+    Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
+    # Modifying Mprime only now as we need to check if the meters are already in Mprime
+
 
     # # Update the sparse matrix Acov to reflect the meters covered by pole j
     # for i in meters_covered_by_j
