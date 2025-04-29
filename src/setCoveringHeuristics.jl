@@ -27,7 +27,8 @@ function initializeGraph(filepath::String;
     cols_AT = Int[]
 
     # Initialize dictionaries to count degrees
-    degPoleUnused = Dict{Int, Int}()  # Degree of each pole (column j)
+    degMetUncovered = Dict{Int, Int}()  # Degree of each meter not currently in Mprime
+    degPolesRemaining = Dict{Int, Int}()  # Degree of each pole (column j)
     degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
     degMetUsedPoles = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
 
@@ -41,10 +42,12 @@ function initializeGraph(filepath::String;
 
         # Update degree counts
         degMetUnusedPoles[i] = get(degMetUnusedPoles, i, 0) + 1
+        degMetUncovered[i] = degMetUnusedPoles[i]
         degMetUsedPoles[i] = 0
-        degPoleUnused[j] = get(degPoleUnused, j, 0) + 1
+        degPolesRemaining[j] = get(degPolesRemaining, j, 0) + 1
     end
 
+    degPoleUncoveredMeters = deepcopy
     # Determine the dimensions dynamically
     max_i = maximum(rows_A)
     max_j = maximum(cols_A)
@@ -54,14 +57,29 @@ function initializeGraph(filepath::String;
     A0 = deepcopy(A)
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
     A_T0 = deepcopy(A_T)
-    # Create adjacency list A_T0_adj
+
+    A0_adj = Dict{Int,Vector{Int}}()
     A_T0_adj = Dict{Int,Vector{Int}}()
+
+    # Initialize adjacency lists
+    for i in 1:max_i
+        A0_adj[i] = Vector{Int}()
+    end
+    A_adj = deepcopy(A0_adj)
+
     for j in 1:max_j
-        A_T0_adj[j] = findall(A_T0[j, :] .== 1)
+        A_T0_adj[j] = Vector{Int}()
+    end
+
+    # Populate adjacency lists
+    for (i, j) in zip(rows_A, cols_A)
+        push!(A0_adj[i], j)  # Add pole j to the list of poles for meter i
+        push!(A_T0_adj[j], i)  # Add meter i to the list of meters for pole j
     end
 
     # Initialize additional data structures
     P = sort(collect(1:max_j))  # 'Set' of all poles
+    Premaining = deepcopy(P)
     p = length(P)
     M = sort(collect(1:max_i))  # 'Set' of all meters
     m = length(M)
@@ -71,7 +89,9 @@ function initializeGraph(filepath::String;
 
     graphState = Dict(
         :A => A,
+        :A_adj => A_adj,
         :A0 => A0,
+        :A0_adj => A0_adj,
         :A_T => A_T,
         :A_T0 => A_T0,
         :A_T0_adj => A_T0_adj,
@@ -79,7 +99,8 @@ function initializeGraph(filepath::String;
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
-        :degPoleUnused => degPoleUnused,
+        :degPolesRemaining => degPolesRemaining,
+        :degMetUncovered => degMetUncovered,
         :degMetUsedPoles => degMetUsedPoles,
         :degMetUnusedPoles => degMetUnusedPoles,
         :k => 0,
@@ -88,6 +109,7 @@ function initializeGraph(filepath::String;
         :maxiter => maxiter,
         :Mprime => Mprime,
         :P => P,
+        :Premaining => Premaining,
         :p => p,
         :Pprime => Pprime,
         :poles_used => 0,
@@ -98,68 +120,141 @@ function initializeGraph(filepath::String;
     return graphState
 end
 
-function chooseNextPole(graphState)
-    @unpack degPoleUnused, scoring_function = graphState
-    if isempty(degPoleUnused)
+function chooseNextPole(graphState; verbose::Bool = false)
+
+    @unpack degPolesRemaining, scoring_function = graphState
+    if isempty(degPolesRemaining)
         error("No unused poles available.")
     end
 
-    if scoring_function == "greedy"
-        j_candidate = HF.argmax_smallestkey(degPoleUnused)[1]  # Pole with the maximum degree
-    elseif scoring_function == "score1"
-        # @unpack degMetUnusedPoles, degMetUsedPoles = graphState
-        # score1Dict = score1(degPoleUnused)
-        # j_candidate = HF.argmax_smallestkey(score1Dict)[1]  # Pole with the maximum degree
-        @error("Scoring function 'score1' not implemented.")
-    elseif scoring_function == "score2"
-        @error("Scoring function 'score2' not implemented.")
+    if scoring_function == "score1" || scoring_function == "score2"
+        @unpack degMetUncovered, A0_adj = graphState
+        k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
+        scoreDict = compute_score(degMetUncovered, degPolesRemaining, A0_adj, k=k, verbose=verbose)
+    elseif scoring_function == "greedy"
+        scoreDict = degPolesRemaining 
     else
         @error("Invalid scoring function: $scoring_function")
     end
+
+    j_candidate = HF.argmax_smallestkey(scoreDict)[1]  # Pole with the maximum degree
+    # j_candidate = argmax(scoreDict)[1]  # Pole with the maximum degree
 
     return j_candidate
 end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A, A0_adj, A_T, A_T0_adj, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, Acov = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
     meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
-    Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
+
     Pprime = union(Pprime, j)  # Add pole j to Pprime
+    Premaining = setdiff(Premaining, j)  # Selected pole no longer on market
+    delete!(degPolesRemaining, j) # Selected pole no longer on market
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
-        degMetUnusedPoles[i] -= 1
-        degMetUsedPoles[i] += 1
+        degMetUnusedPoles[i] -= 1 # one less remaining pole which can cover meter i
+        degMetUsedPoles[i] += 1 # another pole which now covers meter i
+        if !(i ∈ Mprime) # i.e. a previously uncovered meter is being covered by pole j
+            delete!(degMetUncovered, i)  # meter i now no longer uncovered
+
+            # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
+            other_remaining_poles_also_covering_i = intersect(A0_adj[i], Premaining)
+
+            for j_other in other_remaining_poles_also_covering_i
+                degPolesRemaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
+            end
+        end
     end
 
-    # Remove pole j from degPoleUnused
-    delete!(degPoleUnused, j)
+    Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
+    # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
-    # Update the sparse matrix Acov to reflect the meters covered by pole j
-    for i in meters_covered_by_j
-        Acov[i, j] = 1 
-    end
+
+    # # Update the sparse matrix Acov to reflect the meters covered by pole j
+    # for i in meters_covered_by_j
+    #     Acov[i, j] = 1 
+    # end
 
     # Remove pole j from A (set A[i, j] = 0 for all i)
-    for i in meters_covered_by_j
-        A[i, j] = 0
-    end
-    dropzeros!(A)
+    # for i in meters_covered_by_j
+    #     A[i, j] = 0
+    # end
+    # dropzeros!(A)
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
+function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool = false, k=1)
+
+    htc_threshold = minimum(values(degMetUncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
+    HF.myprintln(verbose, "Hard-to-cover threshold: $htc_threshold")
+    scoreDict = Dict{Int, Int}()
+    
+    if k == 1
+        for i ∈ keys(degMetUncovered)
+            if degMetUncovered[i] == htc_threshold
+                # HF.myprintln(true, "Meter $i is a hard to cover meter")
+                for j ∈ A0_adj[i]
+                    # HF.myprintln(true, "Meter $i is covered by pole $j")
+                    scoreDict[j] = degPolesRemaining[j]
+                end
+            end
+        end
+    elseif k == 2
+        for i ∈ keys(degMetUncovered)
+            if degMetUncovered[i] == htc_threshold
+                # HF.myprintln(true, "Meter $i is a hard to cover meter")
+                for j ∈ A0_adj[i]
+                    # HF.myprintln(true, "Meter $i is covered by pole $j")
+                    scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
+                end
+            end
+        end
+    else
+        @error("Invalid value for k: $k")
+    end
+
+    return scoreDict
+end
+
+# function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool=false, k=1)
+
+#     scoreDict = Dict{Int,Int}()
+
+#     # Compute the hard-to-cover threshold (minimum degree of uncovered meters)
+#     htc_threshold = minimum(values(degMetUncovered))
+
+#     for i ∈ keys(degMetUncovered)
+#         if degMetUncovered[i] == htc_threshold
+#             HF.myprintln(verbose, "Meter $i is a hard to cover meter with degree $htc_threshold")
+#             for j ∈ A0_adj[i]
+#                 HF.myprintln(verbose, "Meter $i is covered by pole $j")
+#                 if k == 1
+#                     scoreDict[j] = degPolesRemaining[j]
+#                 elseif k == 2
+#                     scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
+#                 else
+#                     @error("Invalid value for k: $k")
+#                 end
+#             end
+#         end
+#     end
+
+#     return scoreDict
+# end
+
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A, A_T, A_T0_adj, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A0_adj, A_T, A_T0_adj, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -167,34 +262,36 @@ function removePole!(graphState, j;
     end
 
     Pprime = setdiff(Pprime, j)  # Remove pole j from Pprime
+    # But j will not be placed back in Premaining (by design)
 
     HF.myprintln(verbose, "Pole $j to be removed")
     meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
-
+    
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
+        # A_adj[i] = setdiff(A_adj[i], j)  # Remove pole j from the adjacency list of meter i
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
-            Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole
+            @error("Removal of pole $j leaves meter $i uncovered! Why was this selected?")
         end
     end
 
-    # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
-    for i in meters_covered_by_j
-        Acov[i, j] = 0 
-    end
-    dropzeros!(Acov)
+    # # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
+    # for i in meters_covered_by_j
+    #     Acov[i, j] = 0 
+    # end
+    # dropzeros!(Acov)
     # Add back pole j to A (set A[i, j] = 1 for all i)
-    for i in meters_covered_by_j
-        A[i, j] = 1
-    end
+    # for i in meters_covered_by_j
+    #     A[i, j] = 1
+    # end
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 
 end
@@ -237,7 +334,7 @@ function checkForStoppingCriteria(graphState;
     @unpack m, Mprime, k, maxiter = graphState
 
     if k >= maxiter
-        HF.myprintln(verbose, "Maximum iterations reached!")
+        HF.myprintln(true, "Maximum iterations reached!")
         return true
     end
 

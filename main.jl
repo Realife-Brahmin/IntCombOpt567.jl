@@ -4,15 +4,18 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
+# testCase = "p6m6"
 testCase = "phase1"
-testCase = "cap360"
+# testCase = "cap360"
 cleanupRepeats = 1
-cleanupRepeats = 10
+# cleanupRepeats = 10
+# cleanupRepeats = 30
+# cleanupRepeats = 100
 scoring_function = "greedy"
 # scoring_function = "score1"
-# scoring_function = "score2"
-benchmarkTime = false
-# benchmarkTime = true
+scoring_function = "score2"
+# benchmarkTime = false
+benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
@@ -37,7 +40,7 @@ end
 end
 #endregion solveSetCoveringProblem
 
-@unpack poles_used, meters_covered, Acov, m = graph
+@unpack poles_used, meters_covered, m = graph
 @test meters_covered == m
 myprintln(true, "value=$(poles_used)")
 
