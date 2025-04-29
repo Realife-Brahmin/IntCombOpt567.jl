@@ -4,8 +4,8 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
-# testCase = "p6m6"
-# testCase = "phase1"
+testCase = "p6m6"
+testCase = "phase1"
 testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
@@ -40,7 +40,7 @@ end
 end
 #endregion solveSetCoveringProblem
 
-@unpack poles_used, meters_covered, Acov, m = graph
+@unpack poles_used, meters_covered, m = graph
 @test meters_covered == m
 myprintln(true, "value=$(poles_used)")
 

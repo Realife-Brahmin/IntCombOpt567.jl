@@ -160,21 +160,21 @@ function addPole!(graphState, j;
     # Remove pole j from degPoleUnused
     delete!(degPoleUnused, j)
 
-    # Update the sparse matrix Acov to reflect the meters covered by pole j
-    for i in meters_covered_by_j
-        Acov[i, j] = 1 
-    end
+    # # Update the sparse matrix Acov to reflect the meters covered by pole j
+    # for i in meters_covered_by_j
+    #     Acov[i, j] = 1 
+    # end
 
     # Remove pole j from A (set A[i, j] = 0 for all i)
-    for i in meters_covered_by_j
-        A[i, j] = 0
-    end
+    # for i in meters_covered_by_j
+    #     A[i, j] = 0
+    # end
     # dropzeros!(A)
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Acov, Mprime, Pprime, poles_used, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
@@ -239,7 +239,7 @@ end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A, A0_adj, A_T, A_T0_adj, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Acov = graphState
+    @unpack A0_adj, A_T, A_T0_adj, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -247,6 +247,7 @@ function removePole!(graphState, j;
     end
 
     Pprime = setdiff(Pprime, j)  # Remove pole j from Pprime
+    # degPoleUnused[j] = length(A_T0_adj[j])  # Pole j is now back in market
 
     HF.myprintln(verbose, "Pole $j to be removed")
     meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
@@ -258,6 +259,7 @@ function removePole!(graphState, j;
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
+            @warn("We don't come here do we?")
             Mprime = setdiff(Mprime, i)  # Remove meter i from Mprime if it is no longer covered by any pole (shouldn't really happen)
             degMetUncovered[i] = nnz(A[i, :])  # Add meter i back to degMetUncovered
         end
@@ -276,7 +278,7 @@ function removePole!(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, A, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, degPoleUnused, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 
 end
@@ -319,7 +321,7 @@ function checkForStoppingCriteria(graphState;
     @unpack m, Mprime, k, maxiter = graphState
 
     if k >= maxiter
-        HF.myprintln(verbose, "Maximum iterations reached!")
+        HF.myprintln(true, "Maximum iterations reached!")
         return true
     end
 
