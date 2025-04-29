@@ -125,13 +125,6 @@ function chooseNextPole(graphState; verbose::Bool = false)
         @unpack degMetUncovered, A0_adj = graphState
         k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
         scoreDict = compute_score(degMetUncovered, degPoleUnused, A0_adj, k=k, verbose=verbose)
-
-        if isempty(scoreDict)
-            HF.myprintln(verbose, "Zero hard to cover meters found. Proceeding with greedy selection.")
-            scoreDict = degPoleUnused  # Fallback to greedy selection
-        else
-            HF.myprintln(true, "ScoreDict length = $(length(scoreDict))")
-        end
     elseif scoring_function == "greedy"
         scoreDict = degPoleUnused 
     else
@@ -182,20 +175,27 @@ function addPole!(graphState, j;
 end
 
 function compute_score(degMetUncovered, degPoleUnused, A0_adj; verbose::Bool = false, k=1)
-    scoreDict = Dict{Int, Int}()
 
+    htc_threshold = minimum(values(degMetUncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
+    HF.myprintln(true, "Hard-to-cover threshold: $htc_threshold")
+    scoreDict = Dict{Int, Int}()
+    
     if k == 1
         for i ∈ keys(degMetUncovered)
-            if degMetUncovered[i] == 1
+            if degMetUncovered[i] == htc_threshold
+                # HF.myprintln(true, "Meter $i is a hard to cover meter")
                 for j ∈ A0_adj[i]
+                    # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = degPoleUnused[j]
                 end
             end
         end
     elseif k == 2
         for i ∈ keys(degMetUncovered)
-            if degMetUncovered[i] == 1
+            if degMetUncovered[i] == htc_threshold
+                # HF.myprintln(true, "Meter $i is a hard to cover meter")
                 for j ∈ A0_adj[i]
+                    # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = get(scoreDict, j, 0) + degPoleUnused[j]
                 end
             end
@@ -206,6 +206,32 @@ function compute_score(degMetUncovered, degPoleUnused, A0_adj; verbose::Bool = f
 
     return scoreDict
 end
+
+# function compute_score(degMetUncovered, degPoleUnused, A0_adj; verbose::Bool=false, k=1)
+
+#     scoreDict = Dict{Int,Int}()
+
+#     # Compute the hard-to-cover threshold (minimum degree of uncovered meters)
+#     htc_threshold = minimum(values(degMetUncovered))
+
+#     for i ∈ keys(degMetUncovered)
+#         if degMetUncovered[i] == htc_threshold
+#             HF.myprintln(verbose, "Meter $i is a hard to cover meter with degree $htc_threshold")
+#             for j ∈ A0_adj[i]
+#                 HF.myprintln(verbose, "Meter $i is covered by pole $j")
+#                 if k == 1
+#                     scoreDict[j] = degPoleUnused[j]
+#                 elseif k == 2
+#                     scoreDict[j] = get(scoreDict, j, 0) + degPoleUnused[j]
+#                 else
+#                     @error("Invalid value for k: $k")
+#                 end
+#             end
+#         end
+#     end
+
+#     return scoreDict
+# end
 
 function removePole!(graphState, j;
     verbose::Bool = false)

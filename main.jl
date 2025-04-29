@@ -5,10 +5,11 @@ Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
 # testCase = "p6m6"
-testCase = "phase1"
-# testCase = "cap360"
+# testCase = "phase1"
+testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
+# cleanupRepeats = 100
 # scoring_function = "greedy"
 scoring_function = "score1"
 # scoring_function = "score2"
