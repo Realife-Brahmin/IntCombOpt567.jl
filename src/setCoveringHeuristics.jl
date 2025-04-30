@@ -20,7 +20,7 @@ function initializeGraph(filepath::String;
     maxiter::Int = 100000,
     cleanupRepeats::Int = 10,
     scoring_function::String = "greedy")
-    # Initialize arrays to store row and column indices for A_m2p_remaining and A_T
+    # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
     rows_AT = Int[]
@@ -37,7 +37,7 @@ function initializeGraph(filepath::String;
         i, j = parse.(Int, split(line))
         push!(rows_A, i)
         push!(cols_A, j)
-        push!(rows_AT, j)  # Reverse for A_T
+        push!(rows_AT, j)  # Reverse for A_p2m_uncovered
         push!(cols_AT, i)
 
         # Update degree counts
@@ -52,29 +52,29 @@ function initializeGraph(filepath::String;
     max_i = maximum(rows_A)
     max_j = maximum(cols_A)
 
-    # Create sparse matrices A_m2p_remaining and A_T
+    # Create sparse matrices A_m2p_remaining and A_p2m_uncovered
     A_m2p_remaining = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
-    A0 = deepcopy(A_m2p_remaining)
-    A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
-    A_T0 = deepcopy(A_T)
+    A_m2p_reference = deepcopy(A_m2p_remaining)
+    A_p2m_uncovered = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
+    A_p2m_ref = deepcopy(A_p2m_uncovered)
 
-    A0_adj = Dict{Int,Vector{Int}}()
-    A_T0_adj = Dict{Int,Vector{Int}}()
+    Aadj_m2p_ref = Dict{Int,Vector{Int}}()
+    Aadj_p2m_ref = Dict{Int,Vector{Int}}()
 
     # Initialize adjacency lists
     for i in 1:max_i
-        A0_adj[i] = Vector{Int}()
+        Aadj_m2p_ref[i] = Vector{Int}()
     end
-    A_adj = deepcopy(A0_adj)
+    A_adj = deepcopy(Aadj_m2p_ref)
 
     for j in 1:max_j
-        A_T0_adj[j] = Vector{Int}()
+        Aadj_p2m_ref[j] = Vector{Int}()
     end
 
     # Populate adjacency lists
     for (i, j) in zip(rows_A, cols_A)
-        push!(A0_adj[i], j)  # Add pole j to the list of poles for meter i
-        push!(A_T0_adj[j], i)  # Add meter i to the list of meters for pole j
+        push!(Aadj_m2p_ref[i], j)  # Add pole j to the list of poles for meter i
+        push!(Aadj_p2m_ref[j], i)  # Add meter i to the list of meters for pole j
     end
 
     # Initialize additional data structures
@@ -90,9 +90,9 @@ function initializeGraph(filepath::String;
     graphState = Dict(
         :A_m2p_remaining => A_m2p_remaining,
         :A_adj => A_adj,
-        :A0_adj => A0_adj,
-        :A_T => A_T,
-        :A_T0_adj => A_T0_adj,
+        :Aadj_m2p_ref => Aadj_m2p_ref,
+        :A_p2m_uncovered => A_p2m_uncovered,
+        :Aadj_p2m_ref => Aadj_p2m_ref,
         :A_m2p => A_m2p,
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
@@ -126,9 +126,9 @@ function chooseNextPole(graphState; verbose::Bool = false)
     end
 
     if scoring_function == "score1" || scoring_function == "score2"
-        @unpack degMetUncovered, A0_adj = graphState
+        @unpack degMetUncovered, Aadj_m2p_ref = graphState
         k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
-        scoreDict = compute_score(degMetUncovered, degPolesRemaining, A0_adj, k=k, verbose=verbose)
+        scoreDict = compute_score(degMetUncovered, degPolesRemaining, Aadj_m2p_ref, k=k, verbose=verbose)
     elseif scoring_function == "greedy"
         scoreDict = degPolesRemaining 
     else
@@ -143,10 +143,10 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A_m2p_remaining, A0_adj, A_T, A_T0_adj, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, A_m2p = graphState
+    @unpack A_m2p_remaining, Aadj_m2p_ref,  Aadj_p2m_ref, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, A_m2p = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
-    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
 
     Pprime = union(Pprime, j)  # Add pole j to Pprime
@@ -161,7 +161,7 @@ function addPole!(graphState, j;
             delete!(degMetUncovered, i)  # meter i now no longer uncovered
 
             # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
-            other_remaining_poles_also_covering_i = intersect(A0_adj[i], Premaining)
+            other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
 
             for j_other in other_remaining_poles_also_covering_i
                 degPolesRemaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
@@ -194,7 +194,7 @@ function addPole!(graphState, j;
     return graphState
 end
 
-function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool = false, k=1)
+function compute_score(degMetUncovered, degPolesRemaining, Aadj_m2p_ref; verbose::Bool = false, k=1)
 
     htc_threshold = minimum(values(degMetUncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
     HF.myprintln(verbose, "Hard-to-cover threshold: $htc_threshold")
@@ -204,7 +204,7 @@ function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool
         for i ∈ keys(degMetUncovered)
             if degMetUncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
-                for j ∈ A0_adj[i]
+                for j ∈ Aadj_m2p_ref[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = degPolesRemaining[j]
                 end
@@ -214,7 +214,7 @@ function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool
         for i ∈ keys(degMetUncovered)
             if degMetUncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
-                for j ∈ A0_adj[i]
+                for j ∈ Aadj_m2p_ref[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
                 end
@@ -229,7 +229,7 @@ end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A0_adj, A_T, A_T0_adj, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
+    @unpack Aadj_m2p_ref, Aadj_p2m_ref, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -240,7 +240,7 @@ function removePole!(graphState, j;
     # But j will not be placed back in Premaining (by design)
 
     HF.myprintln(verbose, "Pole $j to be removed")
-    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     
     # Update degrees for meters covered by pole j
@@ -358,8 +358,8 @@ function checkForRedundantPole(graphState, j;
     verbose::Bool = false)
 
     HF.myprintln(verbose, "Checking if pole $j is redundant")
-    @unpack degMetUsedPoles, A_T0_adj = graphState
-    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+    @unpack degMetUsedPoles, Aadj_p2m_ref = graphState
+    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     
     for i in meters_covered_by_j
         if degMetUsedPoles[i] == 1  # If meter i is only covered by pole j
