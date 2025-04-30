@@ -20,7 +20,7 @@ function initializeGraph(filepath::String;
     maxiter::Int = 100000,
     cleanupRepeats::Int = 10,
     scoring_function::String = "greedy")
-    # Initialize arrays to store row and column indices for A and A_T
+    # Initialize arrays to store row and column indices for A_m2p_remaining and A_T
     rows_A = Int[]
     cols_A = Int[]
     rows_AT = Int[]
@@ -52,9 +52,9 @@ function initializeGraph(filepath::String;
     max_i = maximum(rows_A)
     max_j = maximum(cols_A)
 
-    # Create sparse matrices A and A_T
-    A = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
-    A0 = deepcopy(A)
+    # Create sparse matrices A_m2p_remaining and A_T
+    A_m2p_remaining = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
+    A0 = deepcopy(A_m2p_remaining)
     A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
     A_T0 = deepcopy(A_T)
 
@@ -85,15 +85,15 @@ function initializeGraph(filepath::String;
     m = length(M)
     Pprime = Set{Int}()  # Set of selected poles (initially empty)
     Mprime = Set{Int}()  # Set of covered meters (initially empty)
-    Acov = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
+    A_m2p = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
 
     graphState = Dict(
-        :A => A,
+        :A_m2p_remaining => A_m2p_remaining,
         :A_adj => A_adj,
         :A0_adj => A0_adj,
         :A_T => A_T,
         :A_T0_adj => A_T0_adj,
-        :Acov => Acov,
+        :A_m2p => A_m2p,
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
@@ -143,7 +143,7 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A, A0_adj, A_T, A_T0_adj, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, Acov = graphState
+    @unpack A_m2p_remaining, A0_adj, A_T, A_T0_adj, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, A_m2p = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
     meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
@@ -173,24 +173,24 @@ function addPole!(graphState, j;
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
 
-    # Update the sparse matrix Acov to reflect the meters covered by pole j
-    @unpack Acov = graphState
+    # Update the sparse matrix A_m2p to reflect the meters covered by pole j
+    @unpack A_m2p = graphState
     for i in meters_covered_by_j
-        Acov[i, j] = 1 
+        A_m2p[i, j] = 1 
     end
-    @pack! graphState = Acov
+    @pack! graphState = A_m2p
 
-    # Remove pole j from A (set A[i, j] = 0 for all i)
-    @unpack A = graphState
+    # Remove pole j from A_m2p_remaining (set A_m2p_remaining[i, j] = 0 for all i)
+    @unpack A_m2p_remaining = graphState
     for i in meters_covered_by_j
-        A[i, j] = 0
+        A_m2p_remaining[i, j] = 0
     end
-    @pack! graphState = A
+    @pack! graphState = A_m2p_remaining
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = A_m2p, Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
@@ -253,20 +253,20 @@ function removePole!(graphState, j;
         end
     end
 
-    # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
-    @unpack Acov = graphState
+    # Update the sparse matrix A_m2p to reflect the meters no longer covered by pole j
+    @unpack A_m2p = graphState
     for i in meters_covered_by_j
-        Acov[i, j] = 0 
+        A_m2p[i, j] = 0 
     end
-    @pack! graphState = Acov
+    @pack! graphState = A_m2p
 
     
-    # Add back pole j to A (set A[i, j] = 1 for all i)
-    @unpack A = graphState    
+    # Add back pole j to A_m2p_remaining (set A_m2p_remaining[i, j] = 1 for all i)
+    @unpack A_m2p_remaining = graphState    
     for i in meters_covered_by_j
-        A[i, j] = 1
+        A_m2p_remaining[i, j] = 1
     end
-    @pack! graphState = A
+    @pack! graphState = A_m2p_remaining
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
