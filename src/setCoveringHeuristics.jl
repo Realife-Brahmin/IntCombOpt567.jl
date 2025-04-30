@@ -90,10 +90,8 @@ function initializeGraph(filepath::String;
     graphState = Dict(
         :A => A,
         :A_adj => A_adj,
-        :A0 => A0,
         :A0_adj => A0_adj,
         :A_T => A_T,
-        :A_T0 => A_T0,
         :A_T0_adj => A_T0_adj,
         :Acov => Acov,
         :cleanupDoneLastIter => false,
