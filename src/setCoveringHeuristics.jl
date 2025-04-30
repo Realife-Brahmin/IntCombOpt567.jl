@@ -313,6 +313,8 @@ function solveSetCoveringProblem!(graphState;
         shouldStop = checkForStoppingCriteria(graphState)
     end
 
+    sanitize_data_structures!(graphState; verbose=verbose)  # Clean up the matrices for the final output
+
     return graphState
 end
 
@@ -376,6 +378,19 @@ function checkForRedundantPole(graphState, j;
     end
 
     return true
+end
+
+function sanitize_data_structures!(graphState;
+    verbose::Bool = false)
+
+    @unpack A_m2p, A_m2p_remaining, A_p2m, A_p2m_uncovered = graphState
+
+    dropzeros!(A_m2p)  # Remove zero rows from A_m2p
+    dropzeros!(A_m2p_remaining)  # Remove zero rows from A_m2p_remaining
+    dropzeros!(A_p2m)  # Remove zero rows from A_p2m
+    dropzeros!(A_p2m_uncovered)  # Remove zero rows from A_p2m_uncovered
+
+    return graphState
 end
 
 end # module setCoveringHeuristics

@@ -15,7 +15,7 @@ scoring_function = "greedy"
 # scoring_function = "score1"
 # scoring_function = "score2"
 benchmarkTime = false
-# benchmarkTime = true
+benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
