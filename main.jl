@@ -11,9 +11,9 @@ cleanupRepeats = 1
 # cleanupRepeats = 10
 # cleanupRepeats = 30
 # cleanupRepeats = 100
-# scoring_function = "greedy"
+scoring_function = "greedy"
 # scoring_function = "score1"
-scoring_function = "score2"
+# scoring_function = "score2"
 benchmarkTime = false
 # benchmarkTime = true
 
@@ -51,7 +51,13 @@ myprintln(true, "scoring_function=$(scoring_function)")
 myprintln(true, "testCase=$(testCase)")
 myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
 myprintln(true, "************************")
-# display(Acov)
+
+@unpack poles_used, meters_covered, m, A_m2p, A_p2m = graph;
+
+non_empty_columns = unique(findnz(A_m2p)[2])  # Extract column indices from non-zero entries
+HF.myprintln(true, "Poles used as per A_m2p: $(length(non_empty_columns))")
+HF.myprintln(true, "Poles used as per poles_used: $(poles_used)")
+
 
 # open("profile_summary.txt", "w") do io
 #     Profile.print(io; format=:flat, sortedby=:count)
