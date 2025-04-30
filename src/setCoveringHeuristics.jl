@@ -20,7 +20,7 @@ function initializeGraph(filepath::String;
     maxiter::Int = 100000,
     cleanupRepeats::Int = 10,
     scoring_function::String = "greedy")
-    # Initialize arrays to store row and column indices for A and A_T
+    # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
     rows_AT = Int[]
@@ -37,7 +37,7 @@ function initializeGraph(filepath::String;
         i, j = parse.(Int, split(line))
         push!(rows_A, i)
         push!(cols_A, j)
-        push!(rows_AT, j)  # Reverse for A_T
+        push!(rows_AT, j)  # Reverse for A_p2m_uncovered
         push!(cols_AT, i)
 
         # Update degree counts
@@ -52,29 +52,32 @@ function initializeGraph(filepath::String;
     max_i = maximum(rows_A)
     max_j = maximum(cols_A)
 
-    # Create sparse matrices A and A_T
-    A = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
-    A0 = deepcopy(A)
-    A_T = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
-    A_T0 = deepcopy(A_T)
+    # Create sparse matrices A_m2p_remaining and A_p2m_uncovered
+    A_m2p_remaining = sparse(rows_A, cols_A, ones(Int, length(rows_A)), max_i, max_j)
+    A_m2p_reference = deepcopy(A_m2p_remaining)
+    A_p2m_uncovered = sparse(rows_AT, cols_AT, ones(Int, length(rows_AT)), max_j, max_i)
+    A_p2m_ref = deepcopy(A_p2m_uncovered)
 
-    A0_adj = Dict{Int,Vector{Int}}()
-    A_T0_adj = Dict{Int,Vector{Int}}()
+    Aadj_m2p_ref = Dict{Int,Vector{Int}}()
+    Aadj_m2p = Dict{Int,Vector{Int}}()
+    Aadj_p2m_ref = Dict{Int,Vector{Int}}()
+    Aadj_p2m = Dict{Int,Vector{Int}}()
 
     # Initialize adjacency lists
     for i in 1:max_i
-        A0_adj[i] = Vector{Int}()
+        Aadj_m2p[i] = Vector{Int}()
+        Aadj_m2p_ref[i] = Vector{Int}()
     end
-    A_adj = deepcopy(A0_adj)
 
     for j in 1:max_j
-        A_T0_adj[j] = Vector{Int}()
+        Aadj_p2m_ref[j] = Vector{Int}()
+        Aadj_p2m[j] = Vector{Int}()
     end
 
     # Populate adjacency lists
     for (i, j) in zip(rows_A, cols_A)
-        push!(A0_adj[i], j)  # Add pole j to the list of poles for meter i
-        push!(A_T0_adj[j], i)  # Add meter i to the list of meters for pole j
+        push!(Aadj_m2p_ref[i], j)  # Add pole j to the list of poles for meter i
+        push!(Aadj_p2m_ref[j], i)  # Add meter i to the list of meters for pole j
     end
 
     # Initialize additional data structures
@@ -85,24 +88,29 @@ function initializeGraph(filepath::String;
     m = length(M)
     Pprime = Set{Int}()  # Set of selected poles (initially empty)
     Mprime = Set{Int}()  # Set of covered meters (initially empty)
-    Acov = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
+    A_m2p = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
+    A_p2m = sparse(Int[], Int[], Int[], max_j, max_i)  # Initially empty sparse matrix with known dimensions
 
     graphState = Dict(
-        :A => A,
-        :A_adj => A_adj,
-        :A0 => A0,
-        :A0_adj => A0_adj,
-        :A_T => A_T,
-        :A_T0 => A_T0,
-        :A_T0_adj => A_T0_adj,
-        :Acov => Acov,
+        :A_m2p => A_m2p,
+        :Aadj_m2p => Aadj_m2p,
+        :Aadj_m2p_ref => Aadj_m2p_ref,
+        :A_m2p_remaining => A_m2p_remaining,
+
+        :A_p2m => A_p2m,
+        :Aadj_p2m => Aadj_p2m,
+        :Aadj_p2m_ref => Aadj_p2m_ref,
+        :A_p2m_uncovered => A_p2m_uncovered,
+
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
+
         :degPolesRemaining => degPolesRemaining,
         :degMetUncovered => degMetUncovered,
         :degMetUsedPoles => degMetUsedPoles,
         :degMetUnusedPoles => degMetUnusedPoles,
+
         :k => 0,
         :M => M,
         :m => m,
@@ -128,9 +136,9 @@ function chooseNextPole(graphState; verbose::Bool = false)
     end
 
     if scoring_function == "score1" || scoring_function == "score2"
-        @unpack degMetUncovered, A0_adj = graphState
+        @unpack degMetUncovered, Aadj_m2p_ref = graphState
         k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
-        scoreDict = compute_score(degMetUncovered, degPolesRemaining, A0_adj, k=k, verbose=verbose)
+        scoreDict = compute_score(degMetUncovered, degPolesRemaining, Aadj_m2p_ref, k=k, verbose=verbose)
     elseif scoring_function == "greedy"
         scoreDict = degPolesRemaining 
     else
@@ -145,10 +153,13 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A, A0_adj, A_T, A_T0_adj, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, Acov = graphState
+
+    @unpack degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
-    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+
+    @unpack Aadj_p2m_ref = graphState
+    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
 
     Pprime = union(Pprime, j)  # Add pole j to Pprime
@@ -157,13 +168,25 @@ function addPole!(graphState, j;
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
+
+        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
+        A_m2p[i, j] = 1
+        push!(Aadj_m2p[i], j)  # Add pole j to the adjacency list of meter i
+        A_m2p_remaining[i, j] = 0 # Remove pole j from the remaining poles for meter i
+
+        A_p2m[j, i] = 1
+        push!(Aadj_p2m[j], i)  # Add meter i to the adjacency list of pole j
+        A_p2m_uncovered[j, i] = 0 # Remove meter i from the uncovered meters for pole j
+        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
+
         degMetUnusedPoles[i] -= 1 # one less remaining pole which can cover meter i
         degMetUsedPoles[i] += 1 # another pole which now covers meter i
         if !(i ∈ Mprime) # i.e. a previously uncovered meter is being covered by pole j
             delete!(degMetUncovered, i)  # meter i now no longer uncovered
 
             # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
-            other_remaining_poles_also_covering_i = intersect(A0_adj[i], Premaining)
+            @unpack Aadj_m2p_ref = graphState
+            other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
 
             for j_other in other_remaining_poles_also_covering_i
                 degPolesRemaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
@@ -174,26 +197,14 @@ function addPole!(graphState, j;
     Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
-
-    # # Update the sparse matrix Acov to reflect the meters covered by pole j
-    # for i in meters_covered_by_j
-    #     Acov[i, j] = 1 
-    # end
-
-    # Remove pole j from A (set A[i, j] = 0 for all i)
-    # for i in meters_covered_by_j
-    #     A[i, j] = 0
-    # end
-    # dropzeros!(A)
-
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Acov, Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
-function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool = false, k=1)
+function compute_score(degMetUncovered, degPolesRemaining, Aadj_m2p_ref; verbose::Bool = false, k=1)
 
     htc_threshold = minimum(values(degMetUncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
     HF.myprintln(verbose, "Hard-to-cover threshold: $htc_threshold")
@@ -203,7 +214,7 @@ function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool
         for i ∈ keys(degMetUncovered)
             if degMetUncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
-                for j ∈ A0_adj[i]
+                for j ∈ Aadj_m2p_ref[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = degPolesRemaining[j]
                 end
@@ -213,7 +224,7 @@ function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool
         for i ∈ keys(degMetUncovered)
             if degMetUncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
-                for j ∈ A0_adj[i]
+                for j ∈ Aadj_m2p_ref[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
                     scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
                 end
@@ -226,35 +237,9 @@ function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool
     return scoreDict
 end
 
-# function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool=false, k=1)
-
-#     scoreDict = Dict{Int,Int}()
-
-#     # Compute the hard-to-cover threshold (minimum degree of uncovered meters)
-#     htc_threshold = minimum(values(degMetUncovered))
-
-#     for i ∈ keys(degMetUncovered)
-#         if degMetUncovered[i] == htc_threshold
-#             HF.myprintln(verbose, "Meter $i is a hard to cover meter with degree $htc_threshold")
-#             for j ∈ A0_adj[i]
-#                 HF.myprintln(verbose, "Meter $i is covered by pole $j")
-#                 if k == 1
-#                     scoreDict[j] = degPolesRemaining[j]
-#                 elseif k == 2
-#                     scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
-#                 else
-#                     @error("Invalid value for k: $k")
-#                 end
-#             end
-#         end
-#     end
-
-#     return scoreDict
-# end
-
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack A0_adj, A_T, A_T0_adj, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
+    @unpack Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -265,28 +250,30 @@ function removePole!(graphState, j;
     # But j will not be placed back in Premaining (by design)
 
     HF.myprintln(verbose, "Pole $j to be removed")
-    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+
+    @unpack Aadj_p2m_ref = graphState
+    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
-        # A_adj[i] = setdiff(A_adj[i], j)  # Remove pole j from the adjacency list of meter i
+        # Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
+
+        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
+        A_m2p[i, j] = 0  # Remove pole j from the sparse matrix A_m2p
+        Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
+        A_m2p_remaining[i, j] = 1  # Add pole j back to the sparse matrix A_m2p_remaining
+        A_p2m[j, i] = 0  # Remove meter i from the sparse matrix A_p2m
+        Aadj_p2m[j] = setdiff(Aadj_p2m[j], i)  # Remove meter i from the adjacency list of pole j
+        A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
+        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
+
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
             @error("Removal of pole $j leaves meter $i uncovered! Why was this selected?")
         end
     end
-
-    # # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
-    # for i in meters_covered_by_j
-    #     Acov[i, j] = 0 
-    # end
-    # dropzeros!(Acov)
-    # Add back pole j to A (set A[i, j] = 1 for all i)
-    # for i in meters_covered_by_j
-    #     A[i, j] = 1
-    # end
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
@@ -326,6 +313,8 @@ function solveSetCoveringProblem!(graphState;
         shouldStop = checkForStoppingCriteria(graphState)
     end
 
+    sanitize_data_structures!(graphState; verbose=verbose)  # Clean up the matrices for the final output
+
     return graphState
 end
 
@@ -340,6 +329,13 @@ function checkForStoppingCriteria(graphState;
 
     if length(Mprime) == m
         HF.myprintln(verbose, "Stopping criterion met: All meters are covered")
+        return true
+    end
+
+    @unpack poles_used, p = graphState
+    if length(poles_used) == p
+        HF.myprintln(true, "Stopping criterion met: All poles are used")
+        @warn("All poles are used, but not all meters are covered!")
         return true
     end
 
@@ -371,8 +367,8 @@ function checkForRedundantPole(graphState, j;
     verbose::Bool = false)
 
     HF.myprintln(verbose, "Checking if pole $j is redundant")
-    @unpack degMetUsedPoles, A_T0_adj = graphState
-    meters_covered_by_j = A_T0_adj[j]  # Find all meters covered by pole j
+    @unpack degMetUsedPoles, Aadj_p2m_ref = graphState
+    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     
     for i in meters_covered_by_j
         if degMetUsedPoles[i] == 1  # If meter i is only covered by pole j
@@ -382,6 +378,19 @@ function checkForRedundantPole(graphState, j;
     end
 
     return true
+end
+
+function sanitize_data_structures!(graphState;
+    verbose::Bool = false)
+
+    @unpack A_m2p, A_m2p_remaining, A_p2m, A_p2m_uncovered = graphState
+
+    dropzeros!(A_m2p)  # Remove zero rows from A_m2p
+    dropzeros!(A_m2p_remaining)  # Remove zero rows from A_m2p_remaining
+    dropzeros!(A_p2m)  # Remove zero rows from A_p2m
+    dropzeros!(A_p2m_uncovered)  # Remove zero rows from A_p2m_uncovered
+
+    return graphState
 end
 
 end # module setCoveringHeuristics
