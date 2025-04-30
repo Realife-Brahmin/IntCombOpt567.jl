@@ -52,10 +52,14 @@ myprintln(true, "testCase=$(testCase)")
 myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
 myprintln(true, "************************")
 
-@unpack poles_used, meters_covered, m, A_m2p, A_p2m = graph;
+@unpack poles_used, meters_covered, m, A_m2p, A_m2p_remaining, A_p2m = graph;
 
-non_empty_columns = unique(findnz(A_m2p)[2])  # Extract column indices from non-zero entries
-HF.myprintln(true, "Poles used as per A_m2p: $(length(non_empty_columns))")
+poles_used_as_per_Am2p = length(unique(findnz(A_m2p)[2]))  # Extract column indices from non-zero entries
+poles_not_used_as_per_Am2p_remaining = length(unique(findnz(A_m2p_remaining)[2]))  # Extract column indices from non-zero entries
+poles_used_as_per_Am2p_remaining = p - poles_not_used_as_per_Am2p_remaining
+
+HF.myprintln(true, "Poles used as per A_m2p: $(poles_used_as_per_Am2p)")
+HF.myprintln(true, "Poles used as per A_m2p_remaining: $(poles_used_as_per_Am2p_remaining)")
 HF.myprintln(true, "Poles used as per poles_used: $(poles_used)")
 
 
