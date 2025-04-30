@@ -229,32 +229,6 @@ function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool
     return scoreDict
 end
 
-# function compute_score(degMetUncovered, degPolesRemaining, A0_adj; verbose::Bool=false, k=1)
-
-#     scoreDict = Dict{Int,Int}()
-
-#     # Compute the hard-to-cover threshold (minimum degree of uncovered meters)
-#     htc_threshold = minimum(values(degMetUncovered))
-
-#     for i ∈ keys(degMetUncovered)
-#         if degMetUncovered[i] == htc_threshold
-#             HF.myprintln(verbose, "Meter $i is a hard to cover meter with degree $htc_threshold")
-#             for j ∈ A0_adj[i]
-#                 HF.myprintln(verbose, "Meter $i is covered by pole $j")
-#                 if k == 1
-#                     scoreDict[j] = degPolesRemaining[j]
-#                 elseif k == 2
-#                     scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
-#                 else
-#                     @error("Invalid value for k: $k")
-#                 end
-#             end
-#         end
-#     end
-
-#     return scoreDict
-# end
-
 function removePole!(graphState, j;
     verbose::Bool = false)
     @unpack A0_adj, A_T, A_T0_adj, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
