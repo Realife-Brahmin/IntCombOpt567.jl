@@ -110,7 +110,7 @@ function initializeGraph(filepath::String;
         :degMetUncovered => degMetUncovered,
         :degMetUsedPoles => degMetUsedPoles,
         :degMetUnusedPoles => degMetUnusedPoles,
-        
+
         :k => 0,
         :M => M,
         :m => m,
@@ -153,9 +153,12 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
-    @unpack A_m2p_remaining, Aadj_m2p_ref,  Aadj_p2m_ref, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining, A_m2p = graphState
+
+    @unpack degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
+
+    @unpack Aadj_p2m_ref = graphState
     meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
 
@@ -165,12 +168,24 @@ function addPole!(graphState, j;
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
+
+        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
+        A_m2p[i, j] = 1
+        push!(Aadj_m2p[i], j)  # Add pole j to the adjacency list of meter i
+        A_m2p_remaining[i, j] = 0 # Remove pole j from the remaining poles for meter i
+
+        A_p2m[j, i] = 1
+        push!(Aadj_p2m[j], i)  # Add meter i to the adjacency list of pole j
+        A_p2m_uncovered[j, i] = 0 # Remove meter i from the uncovered meters for pole j
+        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
+
         degMetUnusedPoles[i] -= 1 # one less remaining pole which can cover meter i
         degMetUsedPoles[i] += 1 # another pole which now covers meter i
         if !(i ∈ Mprime) # i.e. a previously uncovered meter is being covered by pole j
             delete!(degMetUncovered, i)  # meter i now no longer uncovered
 
             # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
+            @unpack Aadj_m2p_ref = graphState
             other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
 
             for j_other in other_remaining_poles_also_covering_i
@@ -183,24 +198,24 @@ function addPole!(graphState, j;
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
 
-    # Update the sparse matrix A_m2p to reflect the meters covered by pole j
-    @unpack A_m2p = graphState
-    for i in meters_covered_by_j
-        A_m2p[i, j] = 1 
-    end
-    @pack! graphState = A_m2p
+    # # Update the sparse matrix A_m2p to reflect the meters covered by pole j
+    # @unpack A_m2p = graphState
+    # for i in meters_covered_by_j
+    #     A_m2p[i, j] = 1 
+    # end
+    # @pack! graphState = A_m2p
 
-    # Remove pole j from A_m2p_remaining (set A_m2p_remaining[i, j] = 0 for all i)
-    @unpack A_m2p_remaining = graphState
-    for i in meters_covered_by_j
-        A_m2p_remaining[i, j] = 0
-    end
-    @pack! graphState = A_m2p_remaining
+    # # Remove pole j from A_m2p_remaining (set A_m2p_remaining[i, j] = 0 for all i)
+    # @unpack A_m2p_remaining = graphState
+    # for i in meters_covered_by_j
+    #     A_m2p_remaining[i, j] = 0
+    # end
+    # @pack! graphState = A_m2p_remaining
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = A_m2p, Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
     return graphState
 end
 
@@ -239,7 +254,7 @@ end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack Aadj_m2p_ref, Aadj_p2m_ref, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
+    @unpack Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -250,12 +265,24 @@ function removePole!(graphState, j;
     # But j will not be placed back in Premaining (by design)
 
     HF.myprintln(verbose, "Pole $j to be removed")
+
+    @unpack Aadj_p2m_ref = graphState
     meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
         # Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
+
+        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
+        A_m2p[i, j] = 0  # Remove pole j from the sparse matrix A_m2p
+        Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
+        A_m2p_remaining[i, j] = 1  # Add pole j back to the sparse matrix A_m2p_remaining
+        A_p2m[j, i] = 0  # Remove meter i from the sparse matrix A_p2m
+        Aadj_p2m[j] = setdiff(Aadj_p2m[j], i)  # Remove meter i from the adjacency list of pole j
+        A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
+        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
+
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
@@ -263,20 +290,20 @@ function removePole!(graphState, j;
         end
     end
 
-    # Update the sparse matrix A_m2p to reflect the meters no longer covered by pole j
-    @unpack A_m2p = graphState
-    for i in meters_covered_by_j
-        A_m2p[i, j] = 0 
-    end
-    @pack! graphState = A_m2p
+    # # Update the sparse matrix A_m2p to reflect the meters no longer covered by pole j
+    # @unpack A_m2p = graphState
+    # for i in meters_covered_by_j
+    #     A_m2p[i, j] = 0 
+    # end
+    # @pack! graphState = A_m2p
 
     
-    # Add back pole j to A_m2p_remaining (set A_m2p_remaining[i, j] = 1 for all i)
-    @unpack A_m2p_remaining = graphState    
-    for i in meters_covered_by_j
-        A_m2p_remaining[i, j] = 1
-    end
-    @pack! graphState = A_m2p_remaining
+    # # Add back pole j to A_m2p_remaining (set A_m2p_remaining[i, j] = 1 for all i)
+    # @unpack A_m2p_remaining = graphState    
+    # for i in meters_covered_by_j
+    #     A_m2p_remaining[i, j] = 1
+    # end
+    # @pack! graphState = A_m2p_remaining
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
