@@ -52,6 +52,6 @@ myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
 myprintln(true, "************************")
 # display(Acov)
 
-open("profile_summary.txt", "w") do io
-    Profile.print(io; format=:flat, sortedby=:count)
-end
+# open("profile_summary.txt", "w") do io
+#     Profile.print(io; format=:flat, sortedby=:count)
+# end
