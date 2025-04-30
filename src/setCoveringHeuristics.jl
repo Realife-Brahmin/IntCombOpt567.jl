@@ -59,16 +59,19 @@ function initializeGraph(filepath::String;
     A_p2m_ref = deepcopy(A_p2m_uncovered)
 
     Aadj_m2p_ref = Dict{Int,Vector{Int}}()
+    Aadj_m2p = Dict{Int,Vector{Int}}()
     Aadj_p2m_ref = Dict{Int,Vector{Int}}()
+    Aadj_p2m = Dict{Int,Vector{Int}}()
 
     # Initialize adjacency lists
     for i in 1:max_i
+        Aadj_m2p[i] = Vector{Int}()
         Aadj_m2p_ref[i] = Vector{Int}()
     end
-    A_adj = deepcopy(Aadj_m2p_ref)
 
     for j in 1:max_j
         Aadj_p2m_ref[j] = Vector{Int}()
+        Aadj_p2m[j] = Vector{Int}()
     end
 
     # Populate adjacency lists
@@ -86,14 +89,17 @@ function initializeGraph(filepath::String;
     Pprime = Set{Int}()  # Set of selected poles (initially empty)
     Mprime = Set{Int}()  # Set of covered meters (initially empty)
     A_m2p = sparse(Int[], Int[], Int[], max_i, max_j)  # Initially empty sparse matrix with known dimensions
+    A_p2m = sparse(Int[], Int[], Int[], max_j, max_i)  # Initially empty sparse matrix with known dimensions
 
     graphState = Dict(
-        :A_m2p_remaining => A_m2p_remaining,
-        :A_adj => A_adj,
-        :Aadj_m2p_ref => Aadj_m2p_ref,
-        :A_p2m_uncovered => A_p2m_uncovered,
-        :Aadj_p2m_ref => Aadj_p2m_ref,
         :A_m2p => A_m2p,
+        :Aadj_m2p => Aadj_m2p,
+        :Aadj_m2p_ref => Aadj_m2p_ref,
+        :A_m2p_remaining => A_m2p_remaining,
+        :A_p2m => A_p2m,
+        :Aadj_p2m => Aadj_p2m,
+        :Aadj_p2m_ref => Aadj_p2m_ref,
+        :A_p2m_uncovered => A_p2m_uncovered,
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
@@ -245,7 +251,7 @@ function removePole!(graphState, j;
     
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
-        # A_adj[i] = setdiff(A_adj[i], j)  # Remove pole j from the adjacency list of meter i
+        # Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
         degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
         degMetUsedPoles[i] -= 1
         if degMetUsedPoles[i] == 0
