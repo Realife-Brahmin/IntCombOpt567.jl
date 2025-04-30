@@ -323,6 +323,13 @@ function checkForStoppingCriteria(graphState;
         return true
     end
 
+    @unpack poles_used, p = graphState
+    if length(poles_used) == p
+        HF.myprintln(true, "Stopping criterion met: All poles are used")
+        @warn("All poles are used, but not all meters are covered!")
+        return true
+    end
+
     return false
 end
 
