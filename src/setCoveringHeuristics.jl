@@ -96,17 +96,21 @@ function initializeGraph(filepath::String;
         :Aadj_m2p => Aadj_m2p,
         :Aadj_m2p_ref => Aadj_m2p_ref,
         :A_m2p_remaining => A_m2p_remaining,
+
         :A_p2m => A_p2m,
         :Aadj_p2m => Aadj_p2m,
         :Aadj_p2m_ref => Aadj_p2m_ref,
         :A_p2m_uncovered => A_p2m_uncovered,
+
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
+
         :degPolesRemaining => degPolesRemaining,
         :degMetUncovered => degMetUncovered,
         :degMetUsedPoles => degMetUsedPoles,
         :degMetUnusedPoles => degMetUnusedPoles,
+        
         :k => 0,
         :M => M,
         :m => m,
