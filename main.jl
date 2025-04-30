@@ -11,11 +11,11 @@ cleanupRepeats = 1
 # cleanupRepeats = 10
 # cleanupRepeats = 30
 # cleanupRepeats = 100
-scoring_function = "greedy"
+# scoring_function = "greedy"
 # scoring_function = "score1"
-# scoring_function = "score2"
+scoring_function = "score2"
 benchmarkTime = false
-benchmarkTime = true
+# benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
@@ -30,9 +30,10 @@ if benchmarkTime
         g_local = deepcopy(g)
         sCH.solveSetCoveringProblem!(g_local)
     end
-    println("Solved in $(sim_time) s")
+    println("Simulation Time: $(sim_time) s")
 else
     sim_time = "not_benchmarked"
+    println("Simulation Time: $(sim_time)")
 end
 
 # profile separately (only once)
