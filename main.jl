@@ -5,21 +5,23 @@ Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
 # testCase = "p6m6"
-testCase = "phase1"
-# testCase = "cap360"
+# testCase = "phase1"
+testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
 # cleanupRepeats = 30
 # cleanupRepeats = 100
 scoring_function = "greedy"
 # scoring_function = "score1"
-scoring_function = "score2"
-# benchmarkTime = false
+# scoring_function = "score2"
+benchmarkTime = false
 benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
     scoring_function=scoring_function)
+
+myprintln(true, "************************")
 
 #region solveSetCoveringProblem
 if benchmarkTime
@@ -42,8 +44,12 @@ end
 
 @unpack poles_used, meters_covered, m = graph
 @test meters_covered == m
-myprintln(true, "value=$(poles_used)")
 
+myprintln(true, "value=$(poles_used)")
+myprintln(true, "scoring_function=$(scoring_function)")
+myprintln(true, "testCase=$(testCase)")
+myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
+myprintln(true, "************************")
 # display(Acov)
 
 open("profile_summary.txt", "w") do io
