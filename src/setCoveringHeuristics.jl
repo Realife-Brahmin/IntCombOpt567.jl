@@ -197,21 +197,6 @@ function addPole!(graphState, j;
     Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
-
-    # # Update the sparse matrix A_m2p to reflect the meters covered by pole j
-    # @unpack A_m2p = graphState
-    # for i in meters_covered_by_j
-    #     A_m2p[i, j] = 1 
-    # end
-    # @pack! graphState = A_m2p
-
-    # # Remove pole j from A_m2p_remaining (set A_m2p_remaining[i, j] = 0 for all i)
-    # @unpack A_m2p_remaining = graphState
-    # for i in meters_covered_by_j
-    #     A_m2p_remaining[i, j] = 0
-    # end
-    # @pack! graphState = A_m2p_remaining
-
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
@@ -289,21 +274,6 @@ function removePole!(graphState, j;
             @error("Removal of pole $j leaves meter $i uncovered! Why was this selected?")
         end
     end
-
-    # # Update the sparse matrix A_m2p to reflect the meters no longer covered by pole j
-    # @unpack A_m2p = graphState
-    # for i in meters_covered_by_j
-    #     A_m2p[i, j] = 0 
-    # end
-    # @pack! graphState = A_m2p
-
-    
-    # # Add back pole j to A_m2p_remaining (set A_m2p_remaining[i, j] = 1 for all i)
-    # @unpack A_m2p_remaining = graphState    
-    # for i in meters_covered_by_j
-    #     A_m2p_remaining[i, j] = 1
-    # end
-    # @pack! graphState = A_m2p_remaining
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
