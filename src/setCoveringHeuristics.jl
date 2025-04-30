@@ -175,16 +175,19 @@ function addPole!(graphState, j;
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
 
-    # # Update the sparse matrix Acov to reflect the meters covered by pole j
-    # for i in meters_covered_by_j
-    #     Acov[i, j] = 1 
-    # end
+    # Update the sparse matrix Acov to reflect the meters covered by pole j
+    @unpack Acov = graphState
+    for i in meters_covered_by_j
+        Acov[i, j] = 1 
+    end
+    @pack! graphState = Acov
 
     # Remove pole j from A (set A[i, j] = 0 for all i)
-    # for i in meters_covered_by_j
-    #     A[i, j] = 0
-    # end
-    # dropzeros!(A)
+    @unpack A = graphState
+    for i in meters_covered_by_j
+        A[i, j] = 0
+    end
+    @pack! graphState = A
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
@@ -278,15 +281,20 @@ function removePole!(graphState, j;
         end
     end
 
-    # # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
-    # for i in meters_covered_by_j
-    #     Acov[i, j] = 0 
-    # end
-    # dropzeros!(Acov)
+    # Update the sparse matrix Acov to reflect the meters no longer covered by pole j
+    @unpack Acov = graphState
+    for i in meters_covered_by_j
+        Acov[i, j] = 0 
+    end
+    @pack! graphState = Acov
+
+    
     # Add back pole j to A (set A[i, j] = 1 for all i)
-    # for i in meters_covered_by_j
-    #     A[i, j] = 1
-    # end
+    @unpack A = graphState    
+    for i in meters_covered_by_j
+        A[i, j] = 1
+    end
+    @pack! graphState = A
 
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
