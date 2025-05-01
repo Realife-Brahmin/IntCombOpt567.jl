@@ -183,8 +183,8 @@ function addPole!(graphState, j;
 
     HF.myprintln(verbose, "Pole $j to be added")
 
-    @unpack Aadj_p2m_ref = graphState
-    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
+    @unpack Aadj_p2m_uncovered = graphState
+    meters_covered_by_j = Aadj_p2m_uncovered[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
 
     @unpack Pprime, Premaining, poles_used = graphState
