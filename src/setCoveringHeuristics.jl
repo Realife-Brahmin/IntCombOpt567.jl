@@ -342,7 +342,7 @@ function solveSetCoveringProblem!(graphState;
         preprocess1!(graphState; verbose=verbose)  # Preprocess the graph to find singleton meters
         preprocess2!(graphState; verbose=true)  # Preprocess the graph to find dominating poles
         j = chooseNextPole(graphState)  # Choose the next pole
-        addPole!(graphState, j)  # Select the pole and update the graph state
+        addPole!(graphState, j, verbose=verbose)  # Select the pole and update the graph state
 
         @unpack meters_covered = graphState
         @pack! graphState = k # k-th iteration completed, so saving it
