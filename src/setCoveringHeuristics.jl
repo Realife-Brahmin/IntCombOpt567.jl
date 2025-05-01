@@ -127,12 +127,22 @@ function initializeGraph(filepath::String;
         :poles_used => 0,
         :meters_covered => 0,
         :scoring_function => scoring_function,
+
+        :preprocess1_steps => 0,
+        :preprocess2_steps => 0,
+        :preprocess3_steps => 0,
     )
 
     return graphState
 end
 
 function chooseNextPole(graphState; verbose::Bool = false)
+
+    @unpack meters_covered, m = graphState
+    if meters_covered == m # Takes care of the case where preprocessing already covered all meters
+        HF.myprintln(true, "All meters already covered. No pole selected.")
+        return -1
+    end
 
     @unpack deg_p_remaining, scoring_function = graphState
     if isempty(deg_p_remaining)
@@ -157,6 +167,11 @@ end
 
 function addPole!(graphState, j;
     verbose = false)
+
+    if j == -1 # Takes care of the case where preprocessing already covered all meters
+        HF.myprintln(true, "No pole selected for addition! Returning graph state unchanged.")
+        return graphState
+    end
 
     @unpack deg_p_remaining, deg_m_uncovered, deg_m2p, deg_m2p_remaining, Mprime, Pprime, Premaining = graphState
 
@@ -297,6 +312,9 @@ function solveSetCoveringProblem!(graphState;
         @unpack k, Mprime = graphState # Starts at 0
         k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
+
+        preprocess1!(graphState; verbose=verbose)  # Preprocess the graph to find singleton meters
+
         j = chooseNextPole(graphState)  # Choose the next pole
         addPole!(graphState, j)  # Select the pole and update the graph state
 
@@ -311,7 +329,7 @@ function solveSetCoveringProblem!(graphState;
             HF.myprintln(verbose, "Iteration $(k): Attempting periodic cleanup procedure")
             cleanupAttempt = true
         end
-            
+        
         if cleanupAttempt
             cleanupGraph!(graphState; verbose=verbose)
         end
@@ -384,6 +402,40 @@ function checkForRedundantPole(graphState, j;
     end
 
     return true
+end
+
+function preprocess1!(graphState;
+    verbose::Bool = false)
+
+    keepPP1Running = true
+    while keepPP1Running
+        @unpack deg_m_uncovered, Aadj_m2p_remaining = graphState
+        graph_mutated = false
+        for i ∈ keys(deg_m_uncovered)
+            if deg_m_uncovered[i] == 1  # If meter i is only covered by one pole
+                HF.myprintln(verbose, "Meter $i is a singleton meter")
+                if length(Aadj_m2p_remaining[i]) != 1
+                    @error("Meter $i is a singleton meter but has more than one pole covering it!")
+                end
+                j = Aadj_m2p_remaining[i][1]  # The only pole covering meter i
+                HF.myprintln(verbose, "Pole $j covers meter $i exclusively")
+                addPole!(graphState, j; verbose=verbose)  # Add the pole to Pprime
+                graphState[:preprocess1_steps] += 1  # Increment the number of steps taken in preprocess1
+                graph_mutated = true
+            end
+
+            if graph_mutated
+                break;
+            end
+        end
+
+        if !graph_mutated
+            HF.myprintln(verbose, "No more singleton meters found")
+            keepPP1Running = false  # No more meters to process
+        end
+    end
+
+    return graphState
 end
 
 function sanitize_data_structures!(graphState;
