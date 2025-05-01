@@ -1,4 +1,5 @@
 using BenchmarkTools
+using Combinatorics
 using Revise
 using IntCombOpt567
 using Parameters
