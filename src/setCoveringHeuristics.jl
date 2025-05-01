@@ -472,22 +472,29 @@ function preprocess2!(graphState;
         @unpack deg_p_remaining, Aadj_p2m_uncovered = graphState
         graph_mutated = false
         for (j1, j2) in combinations(collect(keys(deg_p_remaining)), 2)
-            if deg_p_remaining[j1] != deg_p_remaining[j2]
-                if deg_p_remaining[j1] < deg_p_remaining[j2]
-                    j_small, j_big = j1, j2
-                else
-                    j_small, j_big = j2, j1
-                end
-
-                # Check dominance: j_big covers all meters covered by j_small
-                if issubset(Aadj_p2m_uncovered[j_small], Aadj_p2m_uncovered[j_big])
-                    HF.println(verbose, "Pole $(j_big) is dominant over pole $(j_small).")
-                    
-                    discardPole!(graphState, j_small; verbose=verbose)  # Remove the smaller pole from the graph
-                    graph_mutated = true
-                    graphState[:preprocess2_steps] += 1
-                end
+            HF.myprintln(verbose, "Comparing poles $j1 and $j2")
+            # HF.myprintln(verbose, "Pole $j1 has degree $(deg_p_remaining[j1])")
+            # HF.myprintln(verbose, "Pole $j2 has degree $(deg_p_remaining[j2])")
+            HF.myprintln(verbose, "Pole $j1 covers meters: $(Aadj_p2m_uncovered[j1]), degree = $(deg_p_remaining[j1])")
+            HF.myprintln(verbose, "Pole $j2 covers meters: $(Aadj_p2m_uncovered[j2]), degree = $(deg_p_remaining[j2])")
+            # if deg_p_remaining[j1] != deg_p_remaining[j2]
+            if deg_p_remaining[j1] < deg_p_remaining[j2]
+                j_small, j_big = j1, j2
+            else
+                j_small, j_big = j2, j1
             end
+
+            # Check dominance: j_big covers all meters covered by j_small
+            if issubset(Aadj_p2m_uncovered[j_small], Aadj_p2m_uncovered[j_big])
+                HF.myprintln(verbose, "Pole $(j_big) is dominant over pole $(j_small).")
+                
+                discardPole!(graphState, j_small; verbose=verbose)  # Remove the smaller pole from the graph
+                graph_mutated = true
+                graphState[:preprocess2_steps] += 1
+            else
+                HF.myprintln(verbose, "Pole $(j_big) is NOT dominant over pole $(j_small).")
+            end
+            # end
 
             if graph_mutated # Discarding a pole mutates the graph, mutating its fields like deg_p_remaining, etc. in the process. We can no longer iterate over the already unpacked (unmutated) fields.
                 break
