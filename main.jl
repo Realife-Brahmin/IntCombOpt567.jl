@@ -52,7 +52,7 @@ myprintln(true, "testCase=$(testCase)")
 myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
 myprintln(true, "************************")
 
-@unpack poles_used, meters_covered, m, A_m2p, A_m2p_remaining, A_p2m = graph;
+@unpack poles_used, meters_covered, m, p, A_m2p, A_m2p_remaining, A_p2m = graph;
 
 poles_used_as_per_Am2p = length(unique(findnz(A_m2p)[2]))  # Extract column indices from non-zero entries
 poles_not_used_as_per_Am2p_remaining = length(unique(findnz(A_m2p_remaining)[2]))  # Extract column indices from non-zero entries
