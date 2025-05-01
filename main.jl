@@ -21,8 +21,6 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
     scoring_function=scoring_function)
 
-myprintln(true, "************************")
-
 #region solveSetCoveringProblem
 if benchmarkTime
     # just time the solve call
@@ -30,10 +28,8 @@ if benchmarkTime
         g_local = deepcopy(g)
         sCH.solveSetCoveringProblem!(g_local)
     end
-    println("Simulation Time: $(sim_time) s")
 else
     sim_time = "not_benchmarked"
-    println("Simulation Time: $(sim_time)")
 end
 
 # profile separately (only once)
@@ -46,6 +42,8 @@ end
 @unpack poles_used, meters_covered, m = graph
 @test meters_covered == m
 
+myprintln(true, "************************")
+println("Simulation Time[s]: $(sim_time)")
 myprintln(true, "value=$(poles_used)")
 myprintln(true, "scoring_function=$(scoring_function)")
 myprintln(true, "testCase=$(testCase)")
@@ -62,9 +60,8 @@ poles_used_as_per_Aadj_m2p_remaining = poles_used_as_per_Aadj_m2p_remaining = p 
 
 @test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining == poles_used_as_per_Aadj_m2p_remaining == poles_used
 
-# HF.myprintln(true, "Poles used as per A_m2p: $(poles_used_as_per_Am2p)")
-# HF.myprintln(true, "Poles used as per A_m2p_remaining: $(poles_used_as_per_Am2p_remaining)")
-# HF.myprintln(true, "Poles used as per poles_used: $(poles_used)")
+@unpack preprocess1_steps, preprocess2_steps, preprocess3_steps = graph;
+HF.myprintln(true, "preprocess1_steps=$(preprocess1_steps)")
 
 
 # open("profile_summary.txt", "w") do io
