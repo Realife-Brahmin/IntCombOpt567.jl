@@ -27,10 +27,10 @@ function initializeGraph(filepath::String;
     cols_AT = Int[]
 
     # Initialize dictionaries to count degrees
-    degMetUncovered = Dict{Int, Int}()  # Degree of each meter not currently in Mprime
-    degPolesRemaining = Dict{Int, Int}()  # Degree of each pole (column j)
-    degMetUnusedPoles = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
-    degMetUsedPoles = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
+    deg_m_uncovered = Dict{Int, Int}()  # Degree of each meter not currently in Mprime
+    deg_p_remaining = Dict{Int, Int}()  # Degree of each pole (column j)
+    deg_m2p_remaining = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
+    deg_m2p = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
 
     # Read the file and parse the rows
     for line in readlines(filepath)
@@ -41,10 +41,10 @@ function initializeGraph(filepath::String;
         push!(cols_AT, i)
 
         # Update degree counts
-        degMetUnusedPoles[i] = get(degMetUnusedPoles, i, 0) + 1
-        degMetUncovered[i] = degMetUnusedPoles[i]
-        degMetUsedPoles[i] = 0
-        degPolesRemaining[j] = get(degPolesRemaining, j, 0) + 1
+        deg_m2p_remaining[i] = get(deg_m2p_remaining, i, 0) + 1
+        deg_m_uncovered[i] = deg_m2p_remaining[i]
+        deg_m2p[i] = 0
+        deg_p_remaining[j] = get(deg_p_remaining, j, 0) + 1
     end
 
     degPoleUncoveredMeters = deepcopy
@@ -106,10 +106,10 @@ function initializeGraph(filepath::String;
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
 
-        :degPolesRemaining => degPolesRemaining,
-        :degMetUncovered => degMetUncovered,
-        :degMetUsedPoles => degMetUsedPoles,
-        :degMetUnusedPoles => degMetUnusedPoles,
+        :deg_p_remaining => deg_p_remaining,
+        :deg_m_uncovered => deg_m_uncovered,
+        :deg_m2p => deg_m2p,
+        :deg_m2p_remaining => deg_m2p_remaining,
 
         :k => 0,
         :M => M,
@@ -130,17 +130,17 @@ end
 
 function chooseNextPole(graphState; verbose::Bool = false)
 
-    @unpack degPolesRemaining, scoring_function = graphState
-    if isempty(degPolesRemaining)
+    @unpack deg_p_remaining, scoring_function = graphState
+    if isempty(deg_p_remaining)
         error("No unused poles available.")
     end
 
     if scoring_function == "score1" || scoring_function == "score2"
-        @unpack degMetUncovered, Aadj_m2p_ref = graphState
+        @unpack deg_m_uncovered, Aadj_m2p_ref = graphState
         k = parse(Int, last(scoring_function))  # Extract the number from "score1" or "score2"
-        scoreDict = compute_score(degMetUncovered, degPolesRemaining, Aadj_m2p_ref, k=k, verbose=verbose)
+        scoreDict = compute_score(deg_m_uncovered, deg_p_remaining, Aadj_m2p_ref, k=k, verbose=verbose)
     elseif scoring_function == "greedy"
-        scoreDict = degPolesRemaining 
+        scoreDict = deg_p_remaining 
     else
         @error("Invalid scoring function: $scoring_function")
     end
@@ -154,7 +154,7 @@ end
 function addPole!(graphState, j;
     verbose = false)
 
-    @unpack degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime, Premaining = graphState
+    @unpack deg_p_remaining, deg_m_uncovered, deg_m2p, deg_m2p_remaining, Mprime, Pprime, Premaining = graphState
 
     HF.myprintln(verbose, "Pole $j to be added")
 
@@ -164,7 +164,7 @@ function addPole!(graphState, j;
 
     Pprime = union(Pprime, j)  # Add pole j to Pprime
     Premaining = setdiff(Premaining, j)  # Selected pole no longer on market
-    delete!(degPolesRemaining, j) # Selected pole no longer on market
+    delete!(deg_p_remaining, j) # Selected pole no longer on market
 
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
@@ -179,17 +179,17 @@ function addPole!(graphState, j;
         A_p2m_uncovered[j, i] = 0 # Remove meter i from the uncovered meters for pole j
         @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
 
-        degMetUnusedPoles[i] -= 1 # one less remaining pole which can cover meter i
-        degMetUsedPoles[i] += 1 # another pole which now covers meter i
+        deg_m2p_remaining[i] -= 1 # one less remaining pole which can cover meter i
+        deg_m2p[i] += 1 # another pole which now covers meter i
         if !(i ∈ Mprime) # i.e. a previously uncovered meter is being covered by pole j
-            delete!(degMetUncovered, i)  # meter i now no longer uncovered
+            delete!(deg_m_uncovered, i)  # meter i now no longer uncovered
 
             # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
             @unpack Aadj_m2p_ref = graphState
             other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
 
             for j_other in other_remaining_poles_also_covering_i
-                degPolesRemaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
+                deg_p_remaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
             end
         end
     end
@@ -200,33 +200,33 @@ function addPole!(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Mprime, Pprime, poles_used, Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, Premaining, deg_p_remaining, deg_m_uncovered, deg_m2p, deg_m2p_remaining, meters_covered
     return graphState
 end
 
-function compute_score(degMetUncovered, degPolesRemaining, Aadj_m2p_ref; verbose::Bool = false, k=1)
+function compute_score(deg_m_uncovered, deg_p_remaining, Aadj_m2p_ref; verbose::Bool = false, k=1)
 
-    htc_threshold = minimum(values(degMetUncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
+    htc_threshold = minimum(values(deg_m_uncovered))  # Hard-to-cover threshold (minimum degree of uncovered meters)
     HF.myprintln(verbose, "Hard-to-cover threshold: $htc_threshold")
     scoreDict = Dict{Int, Int}()
     
     if k == 1
-        for i ∈ keys(degMetUncovered)
-            if degMetUncovered[i] == htc_threshold
+        for i ∈ keys(deg_m_uncovered)
+            if deg_m_uncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
                 for j ∈ Aadj_m2p_ref[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
-                    scoreDict[j] = degPolesRemaining[j]
+                    scoreDict[j] = deg_p_remaining[j]
                 end
             end
         end
     elseif k == 2
-        for i ∈ keys(degMetUncovered)
-            if degMetUncovered[i] == htc_threshold
+        for i ∈ keys(deg_m_uncovered)
+            if deg_m_uncovered[i] == htc_threshold
                 # HF.myprintln(true, "Meter $i is a hard to cover meter")
                 for j ∈ Aadj_m2p_ref[i]
                     # HF.myprintln(true, "Meter $i is covered by pole $j")
-                    scoreDict[j] = get(scoreDict, j, 0) + degPolesRemaining[j]
+                    scoreDict[j] = get(scoreDict, j, 0) + deg_p_remaining[j]
                 end
             end
         end
@@ -239,7 +239,7 @@ end
 
 function removePole!(graphState, j;
     verbose::Bool = false)
-    @unpack Premaining, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, Mprime, Pprime  = graphState
+    @unpack Premaining, deg_p_remaining, deg_m_uncovered, deg_m2p, deg_m2p_remaining, Mprime, Pprime  = graphState
 
     if j ∉ Pprime
         error("Attempting to remove a pole that is not in P′.")
@@ -268,9 +268,9 @@ function removePole!(graphState, j;
         A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
         @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
 
-        degMetUnusedPoles[i] += 1  # Update degrees for meters covered by pole j
-        degMetUsedPoles[i] -= 1
-        if degMetUsedPoles[i] == 0
+        deg_m2p_remaining[i] += 1  # Update degrees for meters covered by pole j
+        deg_m2p[i] -= 1
+        if deg_m2p[i] == 0
             @error("Removal of pole $j leaves meter $i uncovered! Why was this selected?")
         end
     end
@@ -278,7 +278,7 @@ function removePole!(graphState, j;
     poles_used = length(Pprime)
     meters_covered = length(Mprime)
     # Update the graph state
-    @pack! graphState = Mprime, Pprime, poles_used, degPolesRemaining, degMetUncovered, degMetUsedPoles, degMetUnusedPoles, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, deg_p_remaining, deg_m_uncovered, deg_m2p, deg_m2p_remaining, meters_covered
     return graphState
 
 end
@@ -367,11 +367,11 @@ function checkForRedundantPole(graphState, j;
     verbose::Bool = false)
 
     HF.myprintln(verbose, "Checking if pole $j is redundant")
-    @unpack degMetUsedPoles, Aadj_p2m_ref = graphState
+    @unpack deg_m2p, Aadj_p2m_ref = graphState
     meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     
     for i in meters_covered_by_j
-        if degMetUsedPoles[i] == 1  # If meter i is only covered by pole j
+        if deg_m2p[i] == 1  # If meter i is only covered by pole j
             HF.myprintln(verbose, "Pole $j is NOT redundant as it covers meter $i exclusively")
             return false
         end
