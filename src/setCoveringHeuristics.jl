@@ -186,8 +186,9 @@ function addPole!(graphState, j;
     meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
 
-    Pprime = union(Pprime, j)  # Add pole j to Pprime
-    Premaining = setdiff(Premaining, j)  # Selected pole no longer on market
+    @unpack Pprime, Premaining, poles_used = graphState
+    union!(Pprime, j)  # Add pole j to Pprime
+    setdiff!(Premaining, j)  # Selected pole no longer on market
     delete!(deg_p_remaining, j) # Selected pole no longer on market
 
     # Update degrees for meters covered by pole j
@@ -219,7 +220,8 @@ function addPole!(graphState, j;
         end
     end
 
-    Mprime = union(Mprime, meters_covered_by_j)  # Add these meters to Mprime
+    @unpack Mprime, meters_covered = graphState
+    union!(Mprime, meters_covered_by_j)  # Add these meters to Mprime
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
     poles_used = length(Pprime)
@@ -271,7 +273,7 @@ function removePole!(graphState, j;
         return
     end
 
-    Pprime = setdiff(Pprime, j)  # Remove pole j from Pprime
+    setdiff!(Pprime, j)  # Remove pole j from Pprime
     # But j will not be placed back in Premaining (by design)
 
     HF.myprintln(verbose, "Pole $j to be removed")
@@ -285,11 +287,11 @@ function removePole!(graphState, j;
 
         @unpack A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
         A_m2p[i, j] = 0  # Remove pole j from the sparse matrix A_m2p
-        Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
+        setdiff!(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
         A_m2p_remaining[i, j] = 1  # Add pole j back to the sparse matrix A_m2p_remaining
         push!(Aadj_m2p_remaining[i], j)  # Add pole j back to the adjacency list of meter i
         A_p2m[j, i] = 0  # Remove meter i from the sparse matrix A_p2m
-        Aadj_p2m[j] = setdiff(Aadj_p2m[j], i)  # Remove meter i from the adjacency list of pole j
+        setdiff!(Aadj_p2m[j], i)  # Remove meter i from the adjacency list of pole j
         A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
         @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
 
@@ -493,7 +495,7 @@ function discardPole!(graphState, j;
 
     HF.myprintln(verbose, "Pole $j to be discarded")
 
-    Premaining = setdiff(Premaining, j)  # Remove pole j from Premaining
+    setdiff!(Premaining, j)  # Remove pole j from Premaining
     delete!(deg_p_remaining, j) # Selected pole no longer on market
 
     @pack! graphState = Premaining, deg_p_remaining
