@@ -4,9 +4,9 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
-# testCase = "p6m6"
+testCase = "p6m6"
 # testCase = "phase1"
-testCase = "cap360"
+# testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
 # cleanupRepeats = 30
@@ -14,12 +14,15 @@ cleanupRepeats = 1
 scoring_function = "greedy"
 # scoring_function = "score1"
 # scoring_function = "score2"
+preprocessing = false
+preprocessing = true
 benchmarkTime = false
 # benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
-    scoring_function=scoring_function)
+    scoring_function=scoring_function,
+    preprocessing=preprocessing)
 
 #region solveSetCoveringProblem
 if benchmarkTime
@@ -62,6 +65,7 @@ poles_used_as_per_Aadj_m2p_remaining = poles_used_as_per_Aadj_m2p_remaining = p 
 
 @unpack preprocess1_steps, preprocess2_steps, preprocess3_steps = graph;
 HF.myprintln(true, "preprocess1_steps=$(preprocess1_steps)")
+HF.myprintln(true, "preprocess2_steps=$(preprocess2_steps)")
 
 
 # open("profile_summary.txt", "w") do io

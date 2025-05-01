@@ -20,7 +20,8 @@ import .helperFunctions as HF
 function initializeGraph(filepath::String;
     maxiter::Int = 100000,
     cleanupRepeats::Int = 10,
-    scoring_function::String = "greedy")
+    scoring_function::String = "greedy",
+    preprocessing=false)
     # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
@@ -114,6 +115,8 @@ function initializeGraph(filepath::String;
         :cleanupDoneLastIter => false,
         :cleanupRepeats => cleanupRepeats,
         :cleanupUsefulLastIter => false,
+
+        :preprocessing => preprocessing,
 
         :deg_p_remaining => deg_p_remaining,
         :deg_m_uncovered => deg_m_uncovered,
@@ -342,8 +345,10 @@ function solveSetCoveringProblem!(graphState;
         k += 1  # Increment the iteration count
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
 
-        preprocess1!(graphState; verbose=verbose)  # Preprocess the graph to find singleton meters
-        preprocess2!(graphState; verbose=verbose)  # Preprocess the graph to find dominating poles
+        if graphState[:preprocessing]
+            preprocess1!(graphState; verbose=verbose)  # Preprocess the graph to find singleton meters
+            preprocess2!(graphState; verbose=true)  # Preprocess the graph to find dominating poles
+        end
         j = chooseNextPole(graphState)  # Choose the next pole
         addPole!(graphState, j, verbose=verbose)  # Select the pole and update the graph state
 
@@ -475,11 +480,11 @@ function preprocess2!(graphState;
         @unpack deg_p_remaining, Aadj_p2m_uncovered = graphState
         graph_mutated = false
         for (j1, j2) in combinations(collect(keys(deg_p_remaining)), 2)
-            HF.myprintln(verbose, "Comparing poles $j1 and $j2")
+            # HF.myprintln(verbose, "Comparing poles $j1 and $j2")
             # HF.myprintln(verbose, "Pole $j1 has degree $(deg_p_remaining[j1])")
             # HF.myprintln(verbose, "Pole $j2 has degree $(deg_p_remaining[j2])")
-            HF.myprintln(verbose, "Pole $j1 covers meters: $(Aadj_p2m_uncovered[j1]), degree = $(deg_p_remaining[j1])")
-            HF.myprintln(verbose, "Pole $j2 covers meters: $(Aadj_p2m_uncovered[j2]), degree = $(deg_p_remaining[j2])")
+            # HF.myprintln(verbose, "Pole $j1 covers meters: $(Aadj_p2m_uncovered[j1]), degree = $(deg_p_remaining[j1])")
+            # HF.myprintln(verbose, "Pole $j2 covers meters: $(Aadj_p2m_uncovered[j2]), degree = $(deg_p_remaining[j2])")
             # if deg_p_remaining[j1] != deg_p_remaining[j2]
             if deg_p_remaining[j1] < deg_p_remaining[j2]
                 j_small, j_big = j1, j2
@@ -495,7 +500,7 @@ function preprocess2!(graphState;
                 graph_mutated = true
                 graphState[:preprocess2_steps] += 1
             else
-                HF.myprintln(verbose, "Pole $(j_big) is NOT dominant over pole $(j_small).")
+                # HF.myprintln(verbose, "Pole $(j_big) is NOT dominant over pole $(j_small).")
             end
             # end
 
