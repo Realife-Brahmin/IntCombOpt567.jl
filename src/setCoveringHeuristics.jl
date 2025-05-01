@@ -536,8 +536,9 @@ function discardPole!(graphState, j;
         
         deg_m2p_remaining[i] -= 1  # Pole j is no longer a remaining pole for meter i
 
-        deg_m_uncovered[i] -= 1  # Pole j is no longer a remaining pole for meter i
-        
+        if !(i ∈ graphState[:Mprime])
+            deg_m_uncovered[i] -= 1  # Pole j is no longer a remaining pole for meter i (if previously uncovered at all)
+        end
     end
 
     # Update the graph state
