@@ -15,7 +15,7 @@ scoring_function = "greedy"
 # scoring_function = "score1"
 # scoring_function = "score2"
 benchmarkTime = false
-benchmarkTime = true
+# benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
@@ -52,15 +52,19 @@ myprintln(true, "testCase=$(testCase)")
 myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
 myprintln(true, "************************")
 
-@unpack poles_used, meters_covered, m, p, A_m2p, A_m2p_remaining, A_p2m = graph;
+@unpack poles_used, meters_covered, m, p, A_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m = graph;
 
 poles_used_as_per_Am2p = length(unique(findnz(A_m2p)[2]))  # Extract column indices from non-zero entries
 poles_not_used_as_per_Am2p_remaining = length(unique(findnz(A_m2p_remaining)[2]))  # Extract column indices from non-zero entries
-poles_used_as_per_Am2p_remaining = p - poles_not_used_as_per_Am2p_remaining
 
-HF.myprintln(true, "Poles used as per A_m2p: $(poles_used_as_per_Am2p)")
-HF.myprintln(true, "Poles used as per A_m2p_remaining: $(poles_used_as_per_Am2p_remaining)")
-HF.myprintln(true, "Poles used as per poles_used: $(poles_used)")
+poles_used_as_per_Am2p_remaining = p - poles_not_used_as_per_Am2p_remaining
+poles_used_as_per_Aadj_m2p_remaining = poles_used_as_per_Aadj_m2p_remaining = p - length(unique(vcat(values(Aadj_m2p_remaining)...)))
+
+@test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining == poles_used_as_per_Aadj_m2p_remaining == poles_used
+
+# HF.myprintln(true, "Poles used as per A_m2p: $(poles_used_as_per_Am2p)")
+# HF.myprintln(true, "Poles used as per A_m2p_remaining: $(poles_used_as_per_Am2p_remaining)")
+# HF.myprintln(true, "Poles used as per poles_used: $(poles_used)")
 
 
 # open("profile_summary.txt", "w") do io
