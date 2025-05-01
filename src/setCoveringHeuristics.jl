@@ -60,6 +60,7 @@ function initializeGraph(filepath::String;
 
     Aadj_m2p_ref = Dict{Int,Vector{Int}}()
     Aadj_m2p = Dict{Int,Vector{Int}}()
+    Aadj_m2p_remaining = Dict{Int,Vector{Int}}()
     Aadj_p2m_ref = Dict{Int,Vector{Int}}()
     Aadj_p2m = Dict{Int,Vector{Int}}()
 
@@ -67,6 +68,7 @@ function initializeGraph(filepath::String;
     for i in 1:max_i
         Aadj_m2p[i] = Vector{Int}()
         Aadj_m2p_ref[i] = Vector{Int}()
+        Aadj_m2p_remaining[i] = Vector{Int}()
     end
 
     for j in 1:max_j
@@ -77,6 +79,7 @@ function initializeGraph(filepath::String;
     # Populate adjacency lists
     for (i, j) in zip(rows_A, cols_A)
         push!(Aadj_m2p_ref[i], j)  # Add pole j to the list of poles for meter i
+        push!(Aadj_m2p_remaining[i], j)  # Add pole j to the list of remaining poles for meter i
         push!(Aadj_p2m_ref[j], i)  # Add meter i to the list of meters for pole j
     end
 
@@ -96,6 +99,7 @@ function initializeGraph(filepath::String;
         :Aadj_m2p => Aadj_m2p,
         :Aadj_m2p_ref => Aadj_m2p_ref,
         :A_m2p_remaining => A_m2p_remaining,
+        :Aadj_m2p_remaining => Aadj_m2p_remaining,
 
         :A_p2m => A_p2m,
         :Aadj_p2m => Aadj_p2m,
@@ -169,15 +173,16 @@ function addPole!(graphState, j;
     # Update degrees for meters covered by pole j
     for i in meters_covered_by_j
 
-        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
+        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
         A_m2p[i, j] = 1
         push!(Aadj_m2p[i], j)  # Add pole j to the adjacency list of meter i
         A_m2p_remaining[i, j] = 0 # Remove pole j from the remaining poles for meter i
+        Aadj_m2p_remaining[i] = setdiff(Aadj_m2p_remaining[i], j)  # Remove pole j from the adjacency list of meter i
 
         A_p2m[j, i] = 1
         push!(Aadj_p2m[j], i)  # Add meter i to the adjacency list of pole j
         A_p2m_uncovered[j, i] = 0 # Remove meter i from the uncovered meters for pole j
-        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
+        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
 
         deg_m2p_remaining[i] -= 1 # one less remaining pole which can cover meter i
         deg_m2p[i] += 1 # another pole which now covers meter i
@@ -259,14 +264,15 @@ function removePole!(graphState, j;
     for i in meters_covered_by_j
         # Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
 
-        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
+        @unpack A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
         A_m2p[i, j] = 0  # Remove pole j from the sparse matrix A_m2p
         Aadj_m2p[i] = setdiff(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
         A_m2p_remaining[i, j] = 1  # Add pole j back to the sparse matrix A_m2p_remaining
+        push!(Aadj_m2p_remaining[i], j)  # Add pole j back to the adjacency list of meter i
         A_p2m[j, i] = 0  # Remove meter i from the sparse matrix A_p2m
         Aadj_p2m[j] = setdiff(Aadj_p2m[j], i)  # Remove meter i from the adjacency list of pole j
         A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
-        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
+        @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
 
         deg_m2p_remaining[i] += 1  # Update degrees for meters covered by pole j
         deg_m2p[i] -= 1
