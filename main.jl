@@ -7,23 +7,23 @@ Revise.track(IntCombOpt567.helperFunctions)
 # testCase = "p6m6"
 # testCase = "phase1"
 testCase = "cap360"
-cleanupRepeats = 1
+# cleanupRepeats = 1
 # cleanupRepeats = 10
-# cleanupRepeats = 30
+cleanupRepeats = 30
 # cleanupRepeats = 100
 scoring_function = "greedy"
 # scoring_function = "score1"
 # scoring_function = "score2"
 # preprocessing = false
 preprocessing = true
-preprocess2_limit = 100
+preprocess2_limit = 1000
 preprocess2_check_limit = 300_000
 # preprocess2_equal_poles = false
 preprocess2_equal_poles = true
-preprocess3_limit = 100                
-preprocess3_check_limit = 100_000       
+preprocess3_limit = 1000             
+preprocess3_check_limit = 300_000       
 preprocess3_equal_meters = true
-
+preprocess_repeats = 1
 benchmarkTime = false
 # benchmarkTime = true
 
@@ -36,7 +36,8 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     preprocess2_equal_poles=preprocess2_equal_poles,
     preprocess3_limit=preprocess3_limit,
     preprocess3_check_limit=preprocess3_check_limit,
-    preprocess3_equal_meters=preprocess3_equal_meters)
+    preprocess3_equal_meters=preprocess3_equal_meters,
+    preprocess_repeats=preprocess_repeats)
 
 #region solveSetCoveringProblem
 if benchmarkTime
