@@ -20,6 +20,10 @@ preprocess2_limit = 100
 preprocess2_check_limit = 100_000
 # preprocess2_equal_poles = false
 preprocess2_equal_poles = true
+preprocess3_limit = 100                
+preprocess3_check_limit = 100_000       
+preprocess3_equal_meters = true
+
 benchmarkTime = false
 # benchmarkTime = true
 
@@ -29,7 +33,10 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     preprocessing=preprocessing,
     preprocess2_limit=preprocess2_limit,
     preprocess2_check_limit=preprocess2_check_limit,
-    preprocess2_equal_poles=preprocess2_equal_poles)
+    preprocess2_equal_poles=preprocess2_equal_poles,
+    preprocess3_limit=preprocess3_limit,
+    preprocess3_check_limit=preprocess3_check_limit,
+    preprocess3_equal_meters=preprocess3_equal_meters)
 
 #region solveSetCoveringProblem
 if benchmarkTime
@@ -62,10 +69,10 @@ myprintln(true, "************************")
 
 @unpack poles_used, meters_covered, m, p, Pprime, Premaining, Pdiscarded, A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m = graph;
 
-poles_used_as_per_Am2p = length(unique(findnz(A_m2p)[2]))  # Extract column indices from non-zero entries
-poles_not_used_as_per_Am2p_remaining_and_Pdiscarded = length(unique(findnz(A_m2p_remaining)[2])) + length(Pdiscarded)  # Extract column indices from non-zero entries
+# poles_used_as_per_Am2p = length(unique(findnz(A_m2p)[2]))  # Extract column indices from non-zero entries
+# poles_not_used_as_per_Am2p_remaining_and_Pdiscarded = length(unique(findnz(A_m2p_remaining)[2])) + length(Pdiscarded)  # Extract column indices from non-zero entries
 
-poles_used_as_per_Am2p_remaining_and_Pdiscarded = p - poles_not_used_as_per_Am2p_remaining_and_Pdiscarded
+# poles_used_as_per_Am2p_remaining_and_Pdiscarded = p - poles_not_used_as_per_Am2p_remaining_and_Pdiscarded
 poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded = p - length(unique(vcat(values(Aadj_m2p_remaining)...))) - length(Pdiscarded)
 
 @test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining_and_Pdiscarded == poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded == poles_used

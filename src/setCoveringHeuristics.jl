@@ -24,7 +24,11 @@ function initializeGraph(filepath::String;
     preprocessing=false,
     preprocess2_limit=1,
     preprocess2_check_limit=10,
-    preprocess2_equal_poles=false)
+    preprocess2_equal_poles=false,
+    preprocess3_limit=1,
+    preprocess3_check_limit=10,
+    preprocess3_equal_meters=false
+    )
     # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
@@ -127,10 +131,13 @@ function initializeGraph(filepath::String;
         :deg_m2p_remaining => deg_m2p_remaining,
 
         :k => 0,
+        :M0 => M,
         :M => M,
+        :m0 => m,
         :m => m,
         :maxiter => maxiter,
         :Mprime => Mprime,
+        :Mignored => Set{Int}(),  # Set of ignored meters (initially empty)
         :P => P,
         :Premaining => Premaining,
         :Pdiscarded => Set{Int}(),  # Set of discarded meters (initially empty)
@@ -146,6 +153,9 @@ function initializeGraph(filepath::String;
         :preprocess2_check_limit => preprocess2_check_limit,
         :preprocess2_equal_poles => preprocess2_equal_poles,
         :preprocess3_steps => 0,
+        :preprocess3_limit => preprocess3_limit,
+        :preprocess3_check_limit => preprocess3_check_limit,
+        :preprocess3_equal_meters => preprocess3_equal_meters,
     )
 
     return graphState
@@ -555,6 +565,50 @@ function preprocess2!(graphState; verbose::Bool=false)
     return graphState
 end
 
+function ignoreMeter!(graphState, i::Int; verbose::Bool=false)
+    @unpack A_m2p, Aadj_m2p, Aadj_m2p_ref, A_m2p_remaining, Aadj_m2p_remaining = graphState
+    @unpack A_p2m_uncovered, Aadj_p2m_uncovered, A_p2m, Aadj_p2m = graphState
+    @unpack deg_m2p, deg_m2p_remaining, deg_m_uncovered = graphState
+    @unpack deg_p_remaining = graphState
+
+    push!(graphState[:ignored_meters], i)
+
+    # --- For every pole j connected to meter i ---
+    poles_covering_i = deepcopy(Aadj_m2p_ref[i])
+    for j in poles_covering_i
+        # Sparse matrix cleanup
+        A_m2p[i, j] = 0
+        A_m2p_remaining[i, j] = 0
+        A_p2m[j, i] = 0
+        A_p2m_uncovered[j, i] = 0
+
+        # Adjacency list cleanup
+        setdiff!(Aadj_p2m[j], i)
+        setdiff!(Aadj_p2m_uncovered[j], i)
+
+        # Update pole's remaining degree if meter i is still uncovered
+        if i ∉ graphState[:Mprime]
+            deg_p_remaining[j] = get(deg_p_remaining, j, 1) - 1
+        end
+    end
+
+    # --- Delete meter i’s entries ---
+    delete!(Aadj_m2p, i)
+    delete!(Aadj_m2p_ref, i)
+    delete!(Aadj_m2p_remaining, i)
+    delete!(deg_m2p, i)
+    delete!(deg_m2p_remaining, i)
+    delete!(deg_m_uncovered, i)
+
+    # --- Remove from M and Mprime ---
+    setdiff!(graphState[:M], i)
+    # --- Update m ---
+    graphState[:m] = length(graphState[:M])
+
+    HF.myprintln(verbose, "Meter $i has been shadow-removed (ignored). Graph now has $(graphState[:m]) meters.")
+
+    return graphState
+end
 
 function discardPole!(graphState, j;
     verbose::Bool = false) # discardPole! removes a 'remaining' pole from graph, unlike removePole! which removes a pole from Pprime. Currently meant for use in preprocess2!
