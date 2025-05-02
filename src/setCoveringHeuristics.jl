@@ -21,7 +21,8 @@ function initializeGraph(filepath::String;
     maxiter::Int = 100000,
     cleanupRepeats::Int = 10,
     scoring_function::String = "greedy",
-    preprocessing=false)
+    preprocessing=false,
+    preprocess2_limit=1)
     # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
@@ -139,6 +140,7 @@ function initializeGraph(filepath::String;
 
         :preprocess1_steps => 0,
         :preprocess2_steps => 0,
+        :preprocess2_limit => preprocess2_limit,
         :preprocess3_steps => 0,
     )
 
@@ -488,6 +490,8 @@ end
 function preprocess2!(graphState;
     verbose::Bool=false)
 
+    @unpack preprocess2_limit = graphState
+    preprocess2_steps_this_iter = 0
     keepPP2Running = true
     while keepPP2Running
         @unpack deg_p_remaining, Aadj_p2m_uncovered = graphState
@@ -512,6 +516,7 @@ function preprocess2!(graphState;
                 discardPole!(graphState, j_small; verbose=verbose)  # Remove the smaller pole from the graph
                 graph_mutated = true
                 graphState[:preprocess2_steps] += 1
+                preprocess2_steps_this_iter += 1
             else
                 # HF.myprintln(verbose, "Pole $(j_big) is NOT dominant over pole $(j_small).")
             end
@@ -525,7 +530,13 @@ function preprocess2!(graphState;
         if !graph_mutated
             # HF.myprintln(verbose, "No more dominating poles found")
             keepPP2Running = false  # No more meters to process
+        elseif preprocess2_steps_this_iter >= preprocess2_limit
+            # HF.myprintln(verbose, "Preprocess2 limit reached: $preprocess2_steps_this_iter")
+            keepPP2Running = false  # No more meters to process
+        # else
+        #     HF.myprintln(verbose, "Preprocess2 steps this iteration: $preprocess2_steps_this_iter")
         end
+        # keepPP2Running = false  # Continue if the graph was mutated in this iteration
     end
 
     return graphState
