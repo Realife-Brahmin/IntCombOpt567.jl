@@ -529,7 +529,9 @@ function preprocess2!(graphState; verbose::Bool=false)
         graph_mutated = false
 
         # Sweep through all pairs, skipping any already marked for deletion
-        for (j1, j2) in combinations(poles, 2)
+        # for (j1, j2) in combinations(poles, 2)
+        for idx1 ∈ eachindex(poles), idx2 = idx1+1:length(poles)
+            j1, j2 = poles[idx1], poles[idx2]
             if j1 ∈ poles_to_remove || j2 ∈ poles_to_remove
                 continue
             end
@@ -639,7 +641,9 @@ function preprocess3!(graphState; verbose::Bool=false)
     meters_to_ignore = Set{Int}()
 
     # Sweep through pairs of meters
-    for (i1, i2) in combinations(meters, 2)
+    # for (i1, i2) in combinations(meters, 2)
+    for idx1 = 1:length(meters), idx2 = idx1+1:length(meters)
+        i1, i2 = meters[idx1], meters[idx2]
         if i1 ∈ meters_to_ignore || i2 ∈ meters_to_ignore
             continue
         end
