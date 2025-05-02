@@ -522,10 +522,11 @@ function preprocess2!(graphState; verbose::Bool=false)
     keepPP2Running = true
 
     while keepPP2Running
-        @unpack deg_p_remaining, Aadj_p2m_uncovered = graphState
+        @unpack Premaining, deg_p_remaining, Aadj_p2m_uncovered = graphState
         # HF.myprintln(true, "PP2: Current set of remaining poles: $(keys(deg_p_remaining))")
-        poles = collect(keys(deg_p_remaining))
-        poles_to_remove = Set{Int}()
+
+        poles = collect(Premaining)
+        poles_to_remove = Int[]
         graph_mutated = false
 
         # Sweep through all pairs, skipping any already marked for deletion
@@ -639,11 +640,11 @@ function preprocess3!(graphState; verbose::Bool=false)
 
     @unpack harder_to_cover_meter, deg_m_uncovered, Aadj_m2p_remaining, deg_m2p_remaining = graphState
     meters = collect(keys(deg_m_uncovered))  # All uncovered meters
-    meters_to_ignore = Set{Int}()
+    meters_to_ignore = Int[]
 
     # Sweep through pairs of meters
     # for (i1, i2) in combinations(meters, 2)
-    for idx1 = 1:length(meters), idx2 = idx1+1:length(meters)
+    for idx1 ∈ eachindex(meters), idx2 = idx1+1:length(meters)
         i1, i2 = meters[idx1], meters[idx2]
         if i1 ∈ meters_to_ignore || i2 ∈ meters_to_ignore
             continue
