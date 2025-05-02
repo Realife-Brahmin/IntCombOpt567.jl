@@ -524,7 +524,7 @@ function preprocess2!(graphState; verbose::Bool=false)
                 continue
             end
 
-            if preprocess2_equal_poles && j1 == j2
+            if !preprocess2_equal_poles && deg_p_remaining[j1] == deg_p_remaining[j2]
                 continue  # Skip if the poles are equal and we want to ignore them
             end
             # Determine smaller and larger degree poles
