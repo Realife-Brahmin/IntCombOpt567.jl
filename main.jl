@@ -17,16 +17,17 @@ scoring_function = "greedy"
 # preprocessing = false
 preprocessing = true
 # preprocess2_limit = 1
-preprocess2_limit = 100
-preprocess2_check_limit = 300_000
-# preprocess2_equal_poles = false
+preprocess2_limit = 50
+preprocess2_check_limit = 100_000
+preprocess2_equal_poles = false
 preprocess2_equal_poles = true
 # preprocess3_limit = 1
-preprocess3_limit = 100
-preprocess3_check_limit = 300_000       
-preprocess3_equal_meters = true
+preprocess3_limit = 10
+preprocess3_check_limit = 100_000
+preprocess3_equal_meters = false
+# preprocess3_equal_meters = true
 preprocess_repeats = 1
-# preprocess_repeats = 2
+# preprocess_repeats = 3
 # benchmarkTime = false
 benchmarkTime = true
 
@@ -44,22 +45,17 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
 
 #region solveSetCoveringProblem
 if benchmarkTime
-    # just time the solve call
     sim_time = @elapsed begin
-        g_local = deepcopy(g)
-        sCH.solveSetCoveringProblem!(g_local)
+        Profile.clear()
+        Profile.init()
+        @profile begin
+            local g_local = deepcopy(g)
+            sCH.solveSetCoveringProblem!(g_local)
+        end
     end
+    global graph = g_local  # store the result (if needed)
 else
     sim_time = "not_benchmarked"
-end
-
-Profile.clear()
-Profile.init()
-
-# profile separately (only once)
-@profile begin
-    sCH.solveSetCoveringProblem!(g)
-    global graph = g
 end
 #endregion solveSetCoveringProblem
 
