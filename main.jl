@@ -17,17 +17,17 @@ scoring_function = "greedy"
 # preprocessing = false
 preprocessing = true
 # preprocess2_limit = 1
-preprocess2_limit = 50
+preprocess2_limit = 200
 preprocess2_check_limit = 100_000
-preprocess2_equal_poles = false
+# preprocess2_equal_poles = false
 preprocess2_equal_poles = true
 # preprocess3_limit = 1
 preprocess3_limit = 10
-preprocess3_check_limit = 100_000
-preprocess3_equal_meters = false
-# preprocess3_equal_meters = true
-preprocess_repeats = 1
-# preprocess_repeats = 3
+preprocess3_check_limit = 10_000
+# preprocess3_equal_meters = false
+preprocess3_equal_meters = true
+# preprocess_repeats = 2
+preprocess_repeats = 2
 # benchmarkTime = false
 benchmarkTime = true
 
@@ -49,11 +49,11 @@ if benchmarkTime
         Profile.clear()
         Profile.init()
         @profile begin
-            local g_local = deepcopy(g)
-            sCH.solveSetCoveringProblem!(g_local)
+            global graph = deepcopy(g)
+            sCH.solveSetCoveringProblem!(graph)
         end
     end
-    global graph = g_local  # store the result (if needed)
+    # global graph = g_local  # store the result (if needed)
 else
     sim_time = "not_benchmarked"
 end
