@@ -327,11 +327,11 @@ function removePole!(graphState, j;
         @unpack A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered = graphState;
         A_m2p[i, j] = 0  # Remove pole j from the sparse matrix A_m2p
         setdiff!(Aadj_m2p[i], j)  # Remove pole j from the adjacency list of meter i
-        A_m2p_remaining[i, j] = 1  # Add pole j back to the sparse matrix A_m2p_remaining
-        push!(Aadj_m2p_remaining[i], j)  # Add pole j back to the adjacency list of meter i
+        # A_m2p_remaining[i, j] = 1  # Add pole j back to the sparse matrix A_m2p_remaining
+        # push!(Aadj_m2p_remaining[i], j)  # Add pole j back to the adjacency list of meter i
         A_p2m[j, i] = 0  # Remove meter i from the sparse matrix A_p2m
         setdiff!(Aadj_p2m[j], i)  # Remove meter i from the adjacency list of pole j
-        A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
+        # A_p2m_uncovered[j, i] = 1  # Add meter i back to the sparse matrix A_p2m_uncovered
         @pack! graphState = A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered
 
         deg_m2p_remaining[i] += 1  # Update degrees for meters covered by pole j
@@ -359,13 +359,12 @@ function solveSetCoveringProblem!(graphState;
         HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
 
         if graphState[:preprocessing]
-            preprocess1!(graphState; verbose=verbose)  # Preprocess the graph to find singleton meters
+            preprocess1!(graphState; verbose=true)  # Preprocess the graph to find singleton meters
             preprocess2!(graphState; verbose=true)  # Preprocess the graph to find dominating poles
         end
-        j = chooseNextPole(graphState)  # Choose the next pole
-        addPole!(graphState, j, verbose=verbose)  # Select the pole and update the graph state
-
-        @unpack meters_covered = graphState
+        j = chooseNextPole(graphState,)  # Choose the next pole
+        addPole!(graphState, j, verbose=true)  # Select the pole and update the graph state
+        # @show graphState[:meters_covered]
         @pack! graphState = k # k-th iteration completed, so saving it
 
         cleanupAttempt = false
@@ -460,13 +459,14 @@ function preprocess1!(graphState;
         graph_mutated = false
         for i ∈ keys(deg_m_uncovered)
             if deg_m_uncovered[i] == 1  # If meter i is only covered by one pole
-                HF.myprintln(verbose, "Meter $i is a singleton meter")
+                # HF.myprintln(verbose, "Meter $i is a singleton meter")
                 if length(Aadj_m2p_remaining[i]) != 1
                     @error("Meter $i is a singleton meter but has more than one pole covering it!")
                 end
                 j = Aadj_m2p_remaining[i][1]  # The only pole covering meter i
-                HF.myprintln(verbose, "Pole $j covers meter $i exclusively")
-                addPole!(graphState, j; verbose=verbose)  # Add the pole to Pprime
+                # HF.myprintln(verbose, "Pole $j covers meter $i exclusively, so adding it to P′")
+                addPole!(graphState, j; verbose=true)  # Add the pole to Pprime
+                # @show graphState[:meters_covered]
                 graphState[:preprocess1_steps] += 1  # Increment the number of steps taken in preprocess1
                 graph_mutated = true
             end
