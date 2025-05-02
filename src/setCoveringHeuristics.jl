@@ -147,8 +147,9 @@ end
 
 function chooseNextPole(graphState; verbose::Bool = false)
 
-    @unpack meters_covered, m = graphState
-    if meters_covered == m # Takes care of the case where preprocessing already covered all meters
+    @unpack m = graphState
+    # @show graphState[:meters_covered]    
+    if graphState[:meters_covered] == m # Takes care of the case where preprocessing already covered all meters
         HF.myprintln(true, "All meters already covered. No pole selected.")
         return -1
     end
@@ -209,8 +210,8 @@ function addPole!(graphState, j;
         push!(Aadj_m2p[i], j)  # Add pole j to the adjacency list of meter i
         A_m2p_remaining[i, j] = 0 # Remove pole j from the remaining poles for meter i
         setdiff!(Aadj_m2p_remaining[i], j)  # Remove pole j from the adjacency list of meter i
-        deg_m2p_remaining[i] -= 1 # one less remaining pole which can cover meter i
         deg_m2p[i] += 1 # another pole which now covers meter i
+        deg_m2p_remaining[i] -= 1 # one less remaining pole which can cover meter i
 
         A_p2m[j, i] = 1
         push!(Aadj_p2m[j], i)  # Add meter i to the adjacency list of pole j
@@ -232,29 +233,34 @@ function addPole!(graphState, j;
             for j_other in other_remaining_poles_also_covering_i
                 @unpack A_p2m_uncovered, Aadj_p2m_uncovered, deg_p_remaining = graphState
 
-                HF.myprintln(verbose, "Pole $j_other also covers meter $i, which is now covered by pole $j")
+                # HF.myprintln(verbose, "Pole $j_other also covers meter $i, which is now covered by pole $j")
                 # @show Aadj_p2m_uncovered
-                HF.myprintln(verbose, "Pole $j_other's previous list of uncovered meters was: $(Aadj_p2m_uncovered[j_other])")
-                HF.myprintln(verbose, "Pole $j_other's previous degree was: $(deg_p_remaining[j_other])")
+                # HF.myprintln(verbose, "Pole $j_other's previous list of uncovered meters was: $(Aadj_p2m_uncovered[j_other])")
+                # HF.myprintln(verbose, "Pole $j_other's previous degree was: $(deg_p_remaining[j_other])")
                 A_p2m_uncovered[j_other, i] = 0  # Remove meter i from the uncovered meters for pole j_other
                 setdiff!(Aadj_p2m_uncovered[j_other], i)  # Remove meter i from the adjacency list of pole j_other
                 deg_p_remaining[j_other] -= 1  # Now that a meter is covered without pole j_other's help, its degree is deducted by 1
 
-                HF.myprintln(verbose, "Pole $j_other's new list of uncovered meters is: $(Aadj_p2m_uncovered[j_other])")
-                HF.myprintln(verbose, "Pole $j_other's new degree is: $(deg_p_remaining[j_other])")
+                # HF.myprintln(verbose, "Pole $j_other's new list of uncovered meters is: $(Aadj_p2m_uncovered[j_other])")
+                # HF.myprintln(verbose, "Pole $j_other's new degree is: $(deg_p_remaining[j_other])")
                 @pack! graphState = A_p2m_uncovered, Aadj_p2m_uncovered, deg_p_remaining
             end
 
         end
     end
 
-    @unpack Mprime, meters_covered = graphState
+    # HF.myprintln(true, "After for loop for pole $j : meters_covered_by_j = $(meters_covered_by_j)")
+
+    @unpack Mprime = graphState
+    # @show Mprime
+    # @show meters_covered_by_j
     union!(Mprime, meters_covered_by_j)  # Add these meters to Mprime
+    # @show Mprime
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
-    meters_covered = length(Mprime) 
+    graphState[:meters_covered] = length(Mprime) 
     # Update the graph state
-    @pack! graphState = Mprime, meters_covered
+    @pack! graphState = Mprime
     return graphState
 end
 
@@ -333,9 +339,9 @@ function removePole!(graphState, j;
     end
 
     poles_used = length(Pprime)
-    meters_covered = length(Mprime)
+    graphState[:meters_covered] = length(Mprime)
     # Update the graph state
-    @pack! graphState = Mprime, Pprime, poles_used, deg_p_remaining, deg_m2p, deg_m2p_remaining, meters_covered
+    @pack! graphState = Mprime, Pprime, poles_used, deg_p_remaining, deg_m2p, deg_m2p_remaining
     return graphState
 
 end
@@ -360,7 +366,7 @@ function solveSetCoveringProblem!(graphState;
         @pack! graphState = k # k-th iteration completed, so saving it
 
         cleanupAttempt = false
-        if meters_covered == m
+        if graphState[:meters_covered] == m
             HF.myprintln(verbose, "Iteration $(k): Attempting cleanup since all meters are covered")
             cleanupAttempt = true
         elseif k % cleanupRepeats == 0
@@ -468,7 +474,7 @@ function preprocess1!(graphState;
         end
 
         if !graph_mutated
-            HF.myprintln(verbose, "No more singleton meters found")
+            # HF.myprintln(verbose, "No more singleton meters found")
             keepPP1Running = false  # No more meters to process
         end
     end
@@ -498,7 +504,7 @@ function preprocess2!(graphState;
 
             # Check dominance: j_big covers all meters covered by j_small
             if issubset(Aadj_p2m_uncovered[j_small], Aadj_p2m_uncovered[j_big])
-                HF.myprintln(verbose, "Pole $(j_big) is dominant over pole $(j_small).")
+                # HF.myprintln(verbose, "Pole $(j_big) is dominant over pole $(j_small).")
                 
                 discardPole!(graphState, j_small; verbose=verbose)  # Remove the smaller pole from the graph
                 graph_mutated = true
@@ -514,7 +520,7 @@ function preprocess2!(graphState;
         end
 
         if !graph_mutated
-            HF.myprintln(verbose, "No more dominating poles found")
+            # HF.myprintln(verbose, "No more dominating poles found")
             keepPP2Running = false  # No more meters to process
         end
     end
