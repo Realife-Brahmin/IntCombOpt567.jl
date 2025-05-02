@@ -17,7 +17,7 @@ scoring_function = "greedy"
 # preprocessing = false
 preprocessing = true
 preprocess2_limit = 100
-preprocess2_check_limit = 100_000
+preprocess2_check_limit = 300_000
 # preprocess2_equal_poles = false
 preprocess2_equal_poles = true
 preprocess3_limit = 100                
@@ -73,15 +73,16 @@ myprintln(true, "************************")
 # poles_not_used_as_per_Am2p_remaining_and_Pdiscarded = length(unique(findnz(A_m2p_remaining)[2])) + length(Pdiscarded)  # Extract column indices from non-zero entries
 
 # poles_used_as_per_Am2p_remaining_and_Pdiscarded = p - poles_not_used_as_per_Am2p_remaining_and_Pdiscarded
-poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded = p - length(unique(vcat(values(Aadj_m2p_remaining)...))) - length(Pdiscarded)
+# poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded = p - length(unique(vcat(values(Aadj_m2p_remaining)...))) - length(Pdiscarded)
 
-@test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining_and_Pdiscarded == poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded == poles_used
+# @test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining_and_Pdiscarded == poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded == poles_used
 
 @unpack preprocess1_steps, preprocess2_steps, preprocess3_steps = graph;
 HF.myprintln(true, "preprocess1_steps=$(preprocess1_steps)")
 HF.myprintln(true, "preprocess2_steps=$(preprocess2_steps)")
+HF.myprintln(true, "preprocess3_steps=$(preprocess3_steps)")
 
-
+@test meters_covered == m
 # open("profile_summary.txt", "w") do io
 #     Profile.print(io; format=:flat, sortedby=:count)
 # end

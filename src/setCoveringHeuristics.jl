@@ -382,6 +382,7 @@ function solveSetCoveringProblem!(graphState;
         if graphState[:preprocessing]
             preprocess1!(graphState; verbose=true)  # Preprocess the graph to find singleton meters
             preprocess2!(graphState; verbose=true)  # Preprocess the graph to find dominating poles
+            preprocess3!(graphState; verbose=true)  # Preprocess the graph to find hard-to-cover meters
         end
         j = chooseNextPole(graphState,)  # Choose the next pole
         addPole!(graphState, j, verbose=true)  # Select the pole and update the graph state
@@ -614,6 +615,63 @@ function ignoreMeter!(graphState, i::Int; verbose::Bool=false)
 
     return graphState
 end
+
+function preprocess3!(graphState; verbose::Bool=false)
+    @unpack preprocess3_limit, preprocess3_check_limit, preprocess3_equal_meters = graphState
+    preprocess3_steps_this_iter = 0
+    preprocess3_check_steps_this_iter = 0
+
+    @unpack harder_to_cover_meter, deg_m_uncovered, Aadj_m2p_remaining, deg_m2p_remaining = graphState
+    meters = collect(keys(deg_m_uncovered))  # All uncovered meters
+    meters_to_ignore = Set{Int}()
+
+    # Sweep through pairs of meters
+    for (i1, i2) in combinations(meters, 2)
+        if i1 ∈ meters_to_ignore || i2 ∈ meters_to_ignore
+            continue
+        end
+
+        poles1 = Aadj_m2p_remaining[i1]
+        poles2 = Aadj_m2p_remaining[i2]
+
+        if !preprocess3_equal_meters && deg_m2p_remaining[i1] == deg_m2p_remaining[i2]
+            continue
+        end
+
+        # Decide which meter is easier to cover
+        if length(poles1) < length(poles2)
+            i_easy, i_hard = i2, i1
+            poles_more, poles_less = poles2, poles1
+        else
+            i_easy, i_hard = i1, i2
+            poles_more, poles_less = poles1, poles2
+        end
+
+        # Check if i_easy is dominated by i_hard (i.e., all poles that cover i_easy also cover i_hard)
+        if issubset(poles_less, poles_more)
+            push!(meters_to_ignore, i_easy)
+            harder_to_cover_meter[i_easy] = i_hard
+            preprocess3_steps_this_iter += 1
+        end
+
+        preprocess3_check_steps_this_iter += 1
+        if preprocess3_check_steps_this_iter >= preprocess3_check_limit
+            break
+        end
+        if preprocess3_steps_this_iter >= preprocess3_limit
+            break
+        end
+    end
+
+    # Perform ignoreMeter! for all meters found
+    for i in meters_to_ignore
+        ignoreMeter!(graphState, i; verbose=verbose)
+        graphState[:preprocess3_steps] += 1
+    end
+
+    return graphState
+end
+
 
 function discardPole!(graphState, j;
     verbose::Bool = false) # discardPole! removes a 'remaining' pole from graph, unlike removePole! which removes a pole from Pprime. Currently meant for use in preprocess2!
