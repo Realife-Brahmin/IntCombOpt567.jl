@@ -10,7 +10,6 @@ export
     solveSetCoveringProblem!,
     removePole!
 
-using Combinatorics
 using Parameters
 using SparseArrays
 
@@ -199,7 +198,7 @@ function chooseNextPole(graphState; verbose::Bool = false)
 end
 
 function addPole!(graphState, j;
-    verbose = false)
+    verbose=false)
 
     if j == -1 # Takes care of the case where preprocessing already covered all meters
         HF.myprintln(true, "No pole selected for addition! Returning graph state unchanged.")
@@ -217,11 +216,13 @@ function addPole!(graphState, j;
     @unpack Pprime, Premaining, poles_used = graphState
     union!(Pprime, j)  # Add pole j to Pprime
     setdiff!(Premaining, j)  # Selected pole no longer on market
+    # @show j ∈ Premaining
     poles_used = length(Pprime)
     @pack! graphState = Premaining, Pprime, poles_used # Update the graph state
 
     @unpack deg_p_remaining = graphState
     delete!(deg_p_remaining, j) # Selected pole no longer on market
+    # @show j ∈ keys(deg_p_remaining)
     @pack! graphState = deg_p_remaining
 
     # Update degrees for meters covered by pole j
@@ -249,12 +250,6 @@ function addPole!(graphState, j;
         @pack! graphState = A_m2p, Aadj_m2p, deg_m2p, A_m2p_remaining, deg_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m, A_p2m_uncovered, Aadj_p2m_uncovered, deg_m_uncovered
 
         if !(i ∈ graphState[:Mprime]) # i.e. a previously uncovered meter is being covered by pole j
-            # delete!(deg_m_uncovered, i)  # meter i now no longer uncovered
-
-            # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
-            # @unpack Aadj_m2p_ref = graphState
-            # other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
-
             @unpack Aadj_m2p_remaining = graphState
             other_remaining_poles_also_covering_i = deepcopy(Aadj_m2p_remaining[i])  # Find all remaining poles covering meter i
             for j_other in other_remaining_poles_also_covering_i
@@ -276,13 +271,10 @@ function addPole!(graphState, j;
         end
     end
 
-    # HF.myprintln(true, "After for loop for pole $j : meters_covered_by_j = $(meters_covered_by_j)")
-
     @unpack Mprime = graphState
     # @show Mprime
     # @show meters_covered_by_j
     union!(Mprime, meters_covered_by_j)  # Add these meters to Mprime
-    # @show Mprime
     # Modifying Mprime only now as we need to check if the meters are already in Mprime
 
     graphState[:meters_covered] = length(Mprime) 
@@ -336,7 +328,7 @@ function removePole!(graphState, j;
     setdiff!(Pprime, j)  # Remove pole j from Pprime
     # But j will not be placed back in Premaining (by design)
 
-    HF.myprintln(true, "Removing and discarding pole $j")
+    HF.myprintln(verbose, "Removing and discarding pole $j")
     union!(graphState[:Pdiscarded], j)  # Add pole j to Pdiscarded
     
     # HF.myprintln(verbose, "Pole $j to be removed")
@@ -495,7 +487,7 @@ function preprocess1!(graphState;
                 end
                 j = Aadj_m2p_remaining[i][1]  # The only pole covering meter i
                 # HF.myprintln(verbose, "Pole $j covers meter $i exclusively, so adding it to P′")
-                addPole!(graphState, j; verbose=true)  # Add the pole to Pprime
+                addPole!(graphState, j; verbose=verbose)  # Add the pole to Pprime
                 # @show graphState[:meters_covered]
                 graphState[:preprocess1_steps] += 1  # Increment the number of steps taken in preprocess1
                 graph_mutated = true
@@ -541,6 +533,7 @@ function preprocess2!(graphState; verbose::Bool=false)
                 continue  # Skip if the poles are equal and we want to ignore them
             end
             # Determine smaller and larger degree poles
+
             if deg_p_remaining[j1] < deg_p_remaining[j2]
                 j_small, j_big = j1, j2
             else
@@ -550,7 +543,7 @@ function preprocess2!(graphState; verbose::Bool=false)
             meters_small, meters_big = Set(Aadj_p2m_uncovered[j_small]), Set(Aadj_p2m_uncovered[j_big])
             # Check if j_big dominates j_small
             if issubset(meters_small, meters_big)
-                # HF.myprintln(verbose, "Pole $j_big dominates pole $j_small. Forwarding pole $j_small for removal")
+                HF.myprintln(verbose, "Pole $j_big dominates pole $j_small. Forwarding pole $j_small for removal")
                 push!(poles_to_remove, j_small)
                 preprocess2_steps_this_iter += 1
             end
@@ -574,12 +567,6 @@ function preprocess2!(graphState; verbose::Bool=false)
         end
 
         keepPP2Running = false
-        # # Decide whether to continue
-        # if !graph_mutated
-        #     keepPP2Running = false
-        # elseif preprocess2_steps_this_iter >= preprocess2_limit
-        #     keepPP2Running = false
-        # end
     end
 
     return graphState
@@ -616,7 +603,7 @@ function ignoreMeter!(graphState, i::Int; verbose::Bool=false)
 
     # --- Delete meter i’s entries ---
     delete!(Aadj_m2p, i)
-    delete!(Aadj_m2p_ref, i)
+    # delete!(Aadj_m2p_ref, i)
     delete!(Aadj_m2p_remaining, i)
     delete!(deg_m2p, i)
     delete!(deg_m2p_remaining, i)
