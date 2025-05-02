@@ -605,7 +605,7 @@ function preprocess2!(graphState; verbose::Bool=false)
                 end
 
                 # Determine j_small and j_big
-                if deg_p_remaining[j2] <= deg_p_remaining[j2]
+                if deg_p_remaining[j2] >= deg_p_remaining[j1]
                     j_small, j_big = j1, j2
                 else
                     j_small, j_big = j2, j1
