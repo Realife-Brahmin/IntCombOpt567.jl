@@ -489,58 +489,67 @@ function preprocess1!(graphState;
     return graphState
 end
 
-function preprocess2!(graphState;
-    verbose::Bool=false)
-
-    @unpack preprocess2_limit = graphState
+function preprocess2!(graphState; verbose::Bool=false)
+    @unpack preprocess2_limit, preprocess2_check_limit = graphState
     preprocess2_steps_this_iter = 0
+    preprocess2_check_steps_this_iter = 0
     keepPP2Running = true
+
     while keepPP2Running
         @unpack deg_p_remaining, Aadj_p2m_uncovered = graphState
+        poles = collect(keys(deg_p_remaining))
+        poles_to_remove = Set{Int}()
         graph_mutated = false
-        for (j1, j2) in combinations(collect(keys(deg_p_remaining)), 2)
-            # HF.myprintln(verbose, "Comparing poles $j1 and $j2")
-            # HF.myprintln(verbose, "Pole $j1 has degree $(deg_p_remaining[j1])")
-            # HF.myprintln(verbose, "Pole $j2 has degree $(deg_p_remaining[j2])")
-            # HF.myprintln(verbose, "Pole $j1 covers meters: $(Aadj_p2m_uncovered[j1]), degree = $(deg_p_remaining[j1])")
-            # HF.myprintln(verbose, "Pole $j2 covers meters: $(Aadj_p2m_uncovered[j2]), degree = $(deg_p_remaining[j2])")
-            # if deg_p_remaining[j1] != deg_p_remaining[j2]
+
+        # Sweep through all pairs, skipping any already marked for deletion
+        for (j1, j2) in combinations(poles, 2)
+            if j1 ∈ poles_to_remove || j2 ∈ poles_to_remove
+                continue
+            end
+
+            # Determine smaller and larger degree poles
             if deg_p_remaining[j1] < deg_p_remaining[j2]
                 j_small, j_big = j1, j2
             else
                 j_small, j_big = j2, j1
             end
 
-            # Check dominance: j_big covers all meters covered by j_small
+            # Check if j_big dominates j_small
             if issubset(Aadj_p2m_uncovered[j_small], Aadj_p2m_uncovered[j_big])
-                # HF.myprintln(verbose, "Pole $(j_big) is dominant over pole $(j_small).")
-                
-                discardPole!(graphState, j_small; verbose=verbose)  # Remove the smaller pole from the graph
-                graph_mutated = true
-                graphState[:preprocess2_steps] += 1
+                push!(poles_to_remove, j_small)
                 preprocess2_steps_this_iter += 1
+            end
 
             preprocess2_check_steps_this_iter += 1
             if preprocess2_check_steps_this_iter >= preprocess2_check_limit
                 break  # Stop if the limit is reached
             end
+            if preprocess2_steps_this_iter >= preprocess2_limit
+                break  # Stop if the limit is reached
             end
         end
 
-        if !graph_mutated
-            # HF.myprintln(verbose, "No more dominating poles found")
-            keepPP2Running = false  # No more meters to process
-        elseif preprocess2_steps_this_iter >= preprocess2_limit
-            # HF.myprintln(verbose, "Preprocess2 limit reached: $preprocess2_steps_this_iter")
-            keepPP2Running = false  # No more meters to process
-        # else
-        #     HF.myprintln(verbose, "Preprocess2 steps this iteration: $preprocess2_steps_this_iter")
+        # Remove dominated poles in one batch
+        if !isempty(poles_to_remove)
+            graph_mutated = true
+            for j in poles_to_remove
+                discardPole!(graphState, j; verbose=verbose)
+                graphState[:preprocess2_steps] += 1
+            end
         end
-        # keepPP2Running = false  # Continue if the graph was mutated in this iteration
+
+        keepPP2Running = false
+        # # Decide whether to continue
+        # if !graph_mutated
+        #     keepPP2Running = false
+        # elseif preprocess2_steps_this_iter >= preprocess2_limit
+        #     keepPP2Running = false
+        # end
     end
 
     return graphState
 end
+
 
 function discardPole!(graphState, j;
     verbose::Bool = false) # discardPole! removes a 'remaining' pole from graph, unlike removePole! which removes a pole from Pprime. Currently meant for use in preprocess2!
