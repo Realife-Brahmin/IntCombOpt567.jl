@@ -130,6 +130,7 @@ function initializeGraph(filepath::String;
         :Mprime => Mprime,
         :P => P,
         :Premaining => Premaining,
+        :Pdiscarded => Set{Int}(),  # Set of discarded meters (initially empty)
         :p => p,
         :Pprime => Pprime,
         :poles_used => 0,
@@ -302,7 +303,10 @@ function removePole!(graphState, j;
     setdiff!(Pprime, j)  # Remove pole j from Pprime
     # But j will not be placed back in Premaining (by design)
 
-    HF.myprintln(verbose, "Pole $j to be removed")
+    HF.myprintln(true, "Removing and discarding pole $j")
+    union!(graphState[:Pdiscarded], j)  # Add pole j to Pdiscarded
+    
+    # HF.myprintln(verbose, "Pole $j to be removed")
 
     @unpack Aadj_p2m_ref = graphState
     meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
@@ -528,7 +532,10 @@ function discardPole!(graphState, j;
         return
     end
 
-    HF.myprintln(verbose, "Pole $j to be discarded")
+    HF.myprintln(verbose, "Discarding pole $j")
+    union!(graphState[:Pdiscarded], j)  # Add pole j to Pdiscarded
+
+    # HF.myprintln(verbose, "Pole $j to be discarded")
 
     setdiff!(Premaining, j)  # Remove pole j from Premaining
     delete!(deg_p_remaining, j) # Selected pole no longer on market
