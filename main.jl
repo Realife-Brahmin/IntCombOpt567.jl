@@ -4,9 +4,9 @@ Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
 # testCase = "p4m6"
-testCase = "p6m6"
+# testCase = "p6m6"
 # testCase = "phase1"
-# testCase = "cap360"
+testCase = "cap360"
 cleanupRepeats = 1
 # cleanupRepeats = 10
 # cleanupRepeats = 30
@@ -14,15 +14,22 @@ cleanupRepeats = 1
 scoring_function = "greedy"
 # scoring_function = "score1"
 # scoring_function = "score2"
-preprocessing = false
+# preprocessing = false
 preprocessing = true
+preprocess2_limit = 100
+preprocess2_check_limit = 100_000
+# preprocess2_equal_poles = false
+preprocess2_equal_poles = true
 benchmarkTime = false
 # benchmarkTime = true
 
 g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
     scoring_function=scoring_function,
-    preprocessing=preprocessing)
+    preprocessing=preprocessing,
+    preprocess2_limit=preprocess2_limit,
+    preprocess2_check_limit=preprocess2_check_limit,
+    preprocess2_equal_poles=preprocess2_equal_poles)
 
 #region solveSetCoveringProblem
 if benchmarkTime
@@ -53,15 +60,15 @@ myprintln(true, "testCase=$(testCase)")
 myprintln(true, "cleanupRepeats=$(cleanupRepeats)")
 myprintln(true, "************************")
 
-@unpack poles_used, meters_covered, m, p, A_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m = graph;
+@unpack poles_used, meters_covered, m, p, Pprime, Premaining, Pdiscarded, A_m2p, Aadj_m2p, A_m2p_remaining, Aadj_m2p_remaining, A_p2m, Aadj_p2m = graph;
 
 poles_used_as_per_Am2p = length(unique(findnz(A_m2p)[2]))  # Extract column indices from non-zero entries
-poles_not_used_as_per_Am2p_remaining = length(unique(findnz(A_m2p_remaining)[2]))  # Extract column indices from non-zero entries
+poles_not_used_as_per_Am2p_remaining_and_Pdiscarded = length(unique(findnz(A_m2p_remaining)[2])) + length(Pdiscarded)  # Extract column indices from non-zero entries
 
-poles_used_as_per_Am2p_remaining = p - poles_not_used_as_per_Am2p_remaining
-poles_used_as_per_Aadj_m2p_remaining = poles_used_as_per_Aadj_m2p_remaining = p - length(unique(vcat(values(Aadj_m2p_remaining)...)))
+poles_used_as_per_Am2p_remaining_and_Pdiscarded = p - poles_not_used_as_per_Am2p_remaining_and_Pdiscarded
+poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded = p - length(unique(vcat(values(Aadj_m2p_remaining)...))) - length(Pdiscarded)
 
-@test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining == poles_used_as_per_Aadj_m2p_remaining == poles_used
+@test poles_used_as_per_Am2p == poles_used_as_per_Am2p_remaining_and_Pdiscarded == poles_used_as_per_Aadj_m2p_remaining_and_Pdiscarded == poles_used
 
 @unpack preprocess1_steps, preprocess2_steps, preprocess3_steps = graph;
 HF.myprintln(true, "preprocess1_steps=$(preprocess1_steps)")
