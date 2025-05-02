@@ -185,9 +185,10 @@ function addPole!(graphState, j;
 
     HF.myprintln(verbose, "Pole $j to be added")
 
-    @unpack Aadj_p2m_uncovered = graphState
-    meters_covered_by_j = Aadj_p2m_uncovered[j]  # Find all meters covered by pole j
-    HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
+    @unpack Aadj_p2m_ref = graphState
+    meters_covered_by_j = deepcopy(Aadj_p2m_ref[j])  # Find all meters covered by pole j
+    # @show typeof(meters_covered_by_j)
+    # @assert pointer_from_objref(meters_covered_by_j) != pointer_from_objref(Aadj_p2m_uncovered[j])
 
     @unpack Pprime, Premaining, poles_used = graphState
     union!(Pprime, j)  # Add pole j to Pprime
@@ -550,7 +551,13 @@ function discardPole!(graphState, j;
     
     @unpack A_m2p_remaining, Aadj_m2p_remaining, deg_m_uncovered, deg_m2p_remaining, Aadj_p2m_uncovered = graphState
 
-    meters_covered_by_j = Aadj_p2m_uncovered[j]  # Find all meters covered by pole j
+    # HF.myprintln(true, "Discarded pole $j would have covered these uncovered meters:  $(Aadj_p2m_uncovered[j])")
+    # meters_covered_by_j = deepcopy(Aadj_p2m_uncovered[j])  
+    meters_covered_by_j = graphState[:Aadj_p2m_ref][j]  # Find all meters covered by pole j. Double remove them if necessary
+    # HF.myprintln(true, "Removing pole $j as a candidate for these meters: $(meters_covered_by_j)")
+    # Find all meters covered by pole j
+    
+    
     # Update degrees for meters covered by pole j
     # @show meters_covered_by_j
     for i in meters_covered_by_j
