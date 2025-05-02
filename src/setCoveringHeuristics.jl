@@ -546,8 +546,9 @@ function preprocess2!(graphState; verbose::Bool=false)
                 j_small, j_big = j2, j1
             end
 
+            meters_small, meters_big = Set(Aadj_p2m_uncovered[j_small]), Set(Aadj_p2m_uncovered[j_big])
             # Check if j_big dominates j_small
-            if issubset(Aadj_p2m_uncovered[j_small], Aadj_p2m_uncovered[j_big])
+            if issubset(meters_small, meters_big)
                 # HF.myprintln(verbose, "Pole $j_big dominates pole $j_small. Forwarding pole $j_small for removal")
                 push!(poles_to_remove, j_small)
                 preprocess2_steps_this_iter += 1
@@ -658,10 +659,10 @@ function preprocess3!(graphState; verbose::Bool=false)
         # Decide which meter is easier to cover
         if length(poles1) < length(poles2)
             i_easy, i_hard = i2, i1
-            poles_more, poles_less = poles2, poles1
+            poles_more, poles_less = Set(poles2), Set(poles1)
         else
             i_easy, i_hard = i1, i2
-            poles_more, poles_less = poles1, poles2
+            poles_more, poles_less = Set(poles1), Set(poles2)
         end
 
         # Check if i_easy is dominated by i_hard (i.e., all poles that cover i_easy also cover i_hard)
