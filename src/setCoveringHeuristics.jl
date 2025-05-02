@@ -228,9 +228,11 @@ function addPole!(graphState, j;
             # delete!(deg_m_uncovered, i)  # meter i now no longer uncovered
 
             # All poles covering meter i still available in the market (excluding newly added pole j, already removed from Premaining)
-            @unpack Aadj_m2p_ref = graphState
-            other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
+            # @unpack Aadj_m2p_ref = graphState
+            # other_remaining_poles_also_covering_i = intersect(Aadj_m2p_ref[i], Premaining)
 
+            @unpack Aadj_m2p_remaining = graphState
+            other_remaining_poles_also_covering_i = deepcopy(Aadj_m2p_remaining[i])  # Find all remaining poles covering meter i
             for j_other in other_remaining_poles_also_covering_i
                 @unpack A_p2m_uncovered, Aadj_p2m_uncovered, deg_p_remaining = graphState
 
@@ -316,7 +318,7 @@ function removePole!(graphState, j;
     # HF.myprintln(verbose, "Pole $j to be removed")
 
     @unpack Aadj_p2m_ref = graphState
-    meters_covered_by_j = Aadj_p2m_ref[j]  # Find all meters covered by pole j
+    meters_covered_by_j = deepcopy(Aadj_p2m_ref[j])  # Find all meters covered by pole j. It is okay to use the reference matrix here, as all meters in it must be in Mprime.
     HF.myprintln(verbose, "Pole $j covers meters:  $(meters_covered_by_j)")
     
     # Update degrees for meters covered by pole j
