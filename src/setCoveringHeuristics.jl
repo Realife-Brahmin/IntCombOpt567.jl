@@ -22,7 +22,8 @@ function initializeGraph(filepath::String;
     cleanupRepeats::Int = 10,
     scoring_function::String = "greedy",
     preprocessing=false,
-    preprocess2_limit=1)
+    preprocess2_limit=1,
+    preprocess2_check_limit=10)
     # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
@@ -141,6 +142,7 @@ function initializeGraph(filepath::String;
         :preprocess1_steps => 0,
         :preprocess2_steps => 0,
         :preprocess2_limit => preprocess2_limit,
+        :preprocess2_check_limit => preprocess2_check_limit,
         :preprocess3_steps => 0,
     )
 
@@ -517,13 +519,11 @@ function preprocess2!(graphState;
                 graph_mutated = true
                 graphState[:preprocess2_steps] += 1
                 preprocess2_steps_this_iter += 1
-            else
-                # HF.myprintln(verbose, "Pole $(j_big) is NOT dominant over pole $(j_small).")
-            end
-            # end
 
-            if graph_mutated # Discarding a pole mutates the graph, mutating its fields like deg_p_remaining, etc. in the process. We can no longer iterate over the already unpacked (unmutated) fields.
-                break
+            preprocess2_check_steps_this_iter += 1
+            if preprocess2_check_steps_this_iter >= preprocess2_check_limit
+                break  # Stop if the limit is reached
+            end
             end
         end
 

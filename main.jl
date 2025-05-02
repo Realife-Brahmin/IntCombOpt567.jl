@@ -16,7 +16,8 @@ scoring_function = "greedy"
 # scoring_function = "score2"
 preprocessing = false
 preprocessing = true
-preprocess2_limit = 10
+preprocess2_limit = Inf
+preprocess2_check_limit = 100000
 benchmarkTime = false
 # benchmarkTime = true
 
@@ -24,7 +25,8 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     cleanupRepeats=cleanupRepeats,
     scoring_function=scoring_function,
     preprocessing=preprocessing,
-    preprocess2_limit=preprocess2_limit)
+    preprocess2_limit=preprocess2_limit,
+    preprocess2_check_limit=preprocess2_check_limit)
 
 #region solveSetCoveringProblem
 if benchmarkTime
