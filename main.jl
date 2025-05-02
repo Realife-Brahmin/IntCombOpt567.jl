@@ -14,10 +14,12 @@ cleanupRepeats = 1
 scoring_function = "greedy"
 # scoring_function = "score1"
 # scoring_function = "score2"
-preprocessing = false
+# preprocessing = false
 preprocessing = true
-preprocess2_limit = Inf
-preprocess2_check_limit = 100000
+preprocess2_limit = 100
+preprocess2_check_limit = 100_000
+# preprocess2_equal_poles = false
+preprocess2_equal_poles = true
 benchmarkTime = false
 # benchmarkTime = true
 
@@ -26,7 +28,8 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     scoring_function=scoring_function,
     preprocessing=preprocessing,
     preprocess2_limit=preprocess2_limit,
-    preprocess2_check_limit=preprocess2_check_limit)
+    preprocess2_check_limit=preprocess2_check_limit,
+    preprocess2_equal_poles=preprocess2_equal_poles)
 
 #region solveSetCoveringProblem
 if benchmarkTime

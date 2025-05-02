@@ -23,7 +23,8 @@ function initializeGraph(filepath::String;
     scoring_function::String = "greedy",
     preprocessing=false,
     preprocess2_limit=1,
-    preprocess2_check_limit=10)
+    preprocess2_check_limit=10,
+    preprocess2_equal_poles=false)
     # Initialize arrays to store row and column indices for A_m2p_remaining and A_p2m_uncovered
     rows_A = Int[]
     cols_A = Int[]
@@ -143,6 +144,7 @@ function initializeGraph(filepath::String;
         :preprocess2_steps => 0,
         :preprocess2_limit => preprocess2_limit,
         :preprocess2_check_limit => preprocess2_check_limit,
+        :preprocess2_equal_poles => preprocess2_equal_poles,
         :preprocess3_steps => 0,
     )
 
@@ -490,7 +492,7 @@ function preprocess1!(graphState;
 end
 
 function preprocess2!(graphState; verbose::Bool=false)
-    @unpack preprocess2_limit, preprocess2_check_limit = graphState
+    @unpack preprocess2_limit, preprocess2_check_limit, preprocess2_equal_poles = graphState
     preprocess2_steps_this_iter = 0
     preprocess2_check_steps_this_iter = 0
     keepPP2Running = true
@@ -507,6 +509,9 @@ function preprocess2!(graphState; verbose::Bool=false)
                 continue
             end
 
+            if preprocess2_equal_poles && j1 == j2
+                continue  # Skip if the poles are equal and we want to ignore them
+            end
             # Determine smaller and larger degree poles
             if deg_p_remaining[j1] < deg_p_remaining[j2]
                 j_small, j_big = j1, j2
