@@ -191,7 +191,9 @@ function chooseNextPole(graphState; verbose::Bool = false)
         @error("Invalid scoring function: $scoring_function")
     end
 
-    j_candidate = HF.argmax_smallestkey(scoreDict)[1]  # Pole with the maximum degree
+    # j_candidate = HF.argmax_smallestkey(scoreDict)[1]  # Pole with the maximum degree
+    j_candidate = HF.argmax(scoreDict)[1]  # Pole with the maximum degree
+
     # j_candidate = argmax(scoreDict)[1]  # Pole with the maximum degree
 
     return j_candidate
