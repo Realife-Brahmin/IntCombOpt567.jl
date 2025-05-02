@@ -40,6 +40,7 @@ function initializeGraph(filepath::String;
     deg_p_remaining = Dict{Int, Int}()  # Degree of each pole (column j)
     deg_m2p_remaining = Dict{Int, Int}()   # Degree of each meter (row i) wrt poles NOT in Pprime
     deg_m2p = Dict{Int, Int}()  # Degree of each meter (row i) wrt poles part of Pprime
+    harder_to_cover_meter = Dict{Int, Int}()  # Should meter i be ignored, will map to the meter, covering which would also cover it
 
     # Read the file and parse the rows
     for line in readlines(filepath)
@@ -79,6 +80,8 @@ function initializeGraph(filepath::String;
         Aadj_m2p[i] = Vector{Int}()
         Aadj_m2p_ref[i] = Vector{Int}()
         Aadj_m2p_remaining[i] = Vector{Int}()
+
+        harder_to_cover_meter[i] = -1
     end
 
     for j in 1:max_j
@@ -129,6 +132,8 @@ function initializeGraph(filepath::String;
         :deg_m_uncovered => deg_m_uncovered,
         :deg_m2p => deg_m2p,
         :deg_m2p_remaining => deg_m2p_remaining,
+
+        :harder_to_cover_meter => harder_to_cover_meter,
 
         :k => 0,
         :M0 => M,
