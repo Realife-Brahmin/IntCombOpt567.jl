@@ -373,16 +373,19 @@ function solveSetCoveringProblem!(graphState;
     @unpack cleanupRepeats, m = graphState
     shouldStop = false
     while !shouldStop # While there are still uncovered meters
-        @unpack k, Mprime = graphState # Starts at 0
+        @unpack k, Mprime, meters_covered, Mignored = graphState # Starts at 0
+        meters_taken_care_of = meters_covered + length(Mignored)  # Mignored are already taken care of, so we can ignore them
         k += 1  # Increment the iteration count
-        HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
+        # HF.myprintln(verbose, "Iteration $(k): Currently covered meters: $(Mprime)")
 
         if graphState[:preprocessing]
+            @unpack meters_covered, m = graphState
             preprocess_steps_this_iter = 0
+            # HF.myprintln(true, "k = $(k), PP$(preprocess_steps_this_iter+1): $(meters_covered) meters covered out of $(m)")
             while preprocess_steps_this_iter < graphState[:preprocess_repeats]
-                preprocess1!(graphState; verbose=verbose)  # Preprocess the graph to find singleton meters
-                preprocess2!(graphState; verbose=verbose)  # Preprocess the graph to find dominating poles
-                preprocess3!(graphState; verbose=verbose)  # Preprocess the graph to find hard-to-cover meters
+                preprocess1!(graphState; verbose=true)  # Preprocess the graph to find singleton meters
+                preprocess2!(graphState; verbose=true)  # Preprocess the graph to find dominating poles
+                # preprocess3!(graphState; verbose=true)  # Preprocess the graph to find hard-to-cover meters
                 preprocess_steps_this_iter += 1
             end
         end

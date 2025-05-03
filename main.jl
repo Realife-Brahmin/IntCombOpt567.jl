@@ -3,32 +3,37 @@ include("./src/setupIntCombOpt567.jl")
 Revise.track(IntCombOpt567.setCoveringHeuristics)
 Revise.track(IntCombOpt567.helperFunctions)
 
-# 120_000, 120, 10_000, 
+# 120_000, 120 for both pp1 and pp2 with greedy gave me 546 and 540 with score 2
+# 30_000, 100, 30_000, 50 for 565 by greedy
+# 30_000, 100, 30_000, 50 for 568 by s2
+
 # testCase = "p4m6"
 # testCase = "p6m6"
 # testCase = "phase1"
 testCase = "cap360"
-cleanupRepeats = 100
+cleanupRepeats = 1
 # cleanupRepeats = 10
 # cleanupRepeats = 30
 # cleanupRepeats = 100
-scoring_function = "greedy"
+# scoring_function = "greedy"
+
 # scoring_function = "score1"
-# scoring_function = "score2"
+scoring_function = "score2"
+if scoring_function == "greedy" factor = 3 else factor = 3 end
 # preprocessing = false
 preprocessing = true
 # preprocess2_limit = 1
-preprocess2_limit = 120
-preprocess2_check_limit = 120_000
+preprocess2_limit = 100
+preprocess2_check_limit = 40_000
 # preprocess2_equal_poles = false
 preprocess2_equal_poles = true
 # preprocess3_limit = 1
-preprocess3_limit = 120
-preprocess3_check_limit = 120_000
+preprocess3_limit = 100
+preprocess3_check_limit = 40_000
 # preprocess3_equal_meters = false
 preprocess3_equal_meters = true
 # preprocess_repeats = 2
-preprocess_repeats = 1
+preprocess_repeats = 2
 # benchmarkTime = false
 benchmarkTime = true
 
@@ -37,10 +42,10 @@ g = sCH.initializeGraph("rawData/project02/" * testCase * ".txt",
     scoring_function=scoring_function,
     preprocessing=preprocessing,
     preprocess2_limit=preprocess2_limit,
-    preprocess2_check_limit=preprocess2_check_limit,
+    preprocess2_check_limit=preprocess2_check_limit*factor,
     preprocess2_equal_poles=preprocess2_equal_poles,
     preprocess3_limit=preprocess3_limit,
-    preprocess3_check_limit=preprocess3_check_limit,
+    preprocess3_check_limit=preprocess3_check_limit * factor,
     preprocess3_equal_meters=preprocess3_equal_meters,
     preprocess_repeats=preprocess_repeats)
 
