@@ -5,7 +5,6 @@ export setCoveringHeuristics
 
 using AmplNLWriter
 using BenchmarkTools
-using Combinatorics
 using Gurobi
 using HiGHS
 using JuMP
