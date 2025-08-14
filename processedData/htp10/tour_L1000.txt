@@ -1,0 +1,5 @@
+i      j      c_ij     cum_cij     
+1      1      1000     1000        
+
+closes: true (start i=1, end j=1)
+total_cost=1000, L=1000, meets_L=true
